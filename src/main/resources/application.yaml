@@ -13,3 +13,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+jwt:
+  secret: kmtech-super-secret-key-for-jwt-signing-do-not-expose-in-production
+  expiration: 86400000
