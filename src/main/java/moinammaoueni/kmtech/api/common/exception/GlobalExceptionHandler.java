@@ -2,6 +2,8 @@ package moinammaoueni.kmtech.api.common.exception;
 
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -15,13 +17,22 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+	
+	private static final Logger logger =
+            LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(
             ResourceNotFoundException exception,
             HttpServletRequest request) {
+    	
+    	logger.warn(
+                "Ressource introuvable : {}",
+                exception.getMessage()
+        );
 
         return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage(), request);
     }
@@ -97,6 +108,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGenericException(
             Exception exception,
             HttpServletRequest request) {
+    	
+    	logger.error(
+                "Erreur interne inattendue",
+                exception
+        );
 
         return buildResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,

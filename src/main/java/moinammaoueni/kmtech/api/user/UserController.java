@@ -8,30 +8,39 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import moinammaoueni.kmtech.api.user.dto.ChangePasswordRequestDTO;
 import moinammaoueni.kmtech.api.user.dto.UpdateUserRequestDTO;
 import moinammaoueni.kmtech.api.user.dto.UserResponseDTO;
 
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
+
+    private final UserService userService;
 
     @GetMapping("/me")
     public UserResponseDTO findMe() {
-        return null;
+        return userService.findMe();
     }
 
     @GetMapping("/public/{slug}")
     public UserResponseDTO findPublicBySlug(@PathVariable String slug) {
-        return null;
+        return userService.findPublicBySlug(slug);
     }
 
     @PatchMapping("/me")
-    public UserResponseDTO updateMe(@Valid @RequestBody UpdateUserRequestDTO request) {
-        return null;
+    public UserResponseDTO updateMe(
+            @Valid @RequestBody UpdateUserRequestDTO request) {
+
+        return userService.updateMe(request);
     }
 
     @PatchMapping("/me/password")
-    public void changePassword(@Valid @RequestBody ChangePasswordRequestDTO request) {
+    public void changePassword(
+            @Valid @RequestBody ChangePasswordRequestDTO request) {
+
+        userService.changePassword(request);
     }
 }
