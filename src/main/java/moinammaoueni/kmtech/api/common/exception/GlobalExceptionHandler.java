@@ -120,6 +120,14 @@ public class GlobalExceptionHandler {
                 request
         );
     }
+    
+    @ExceptionHandler(InvalidFileException.class)
+    public ResponseEntity<ErrorResponse> InvalidFileException(
+			InvalidFileException exception,
+			HttpServletRequest request) {
+
+		return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), request);
+	}
 
     private ResponseEntity<ErrorResponse> buildResponse(
             HttpStatus status,

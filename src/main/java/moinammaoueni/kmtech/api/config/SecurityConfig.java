@@ -114,6 +114,7 @@ public class SecurityConfig {
                     .requestMatchers(
                             "/api/users/me"
                     ).authenticated()
+                    .requestMatchers("/api/media/**").permitAll() // TODO: à sécuriser plus tard
 
                     // =========================
                     // CONSULTATION PUBLIQUE
