@@ -129,6 +129,14 @@ public class GlobalExceptionHandler {
 		return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), request);
 	}
 
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ErrorResponse> handleConflict(
+            ConflictException exception,
+            HttpServletRequest request) {
+
+        return buildResponse(HttpStatus.CONFLICT, exception.getMessage(), request);
+    }
+
     private ResponseEntity<ErrorResponse> buildResponse(
             HttpStatus status,
             String message,

@@ -106,7 +106,7 @@ public class SecurityConfig {
                     // =========================
                     .requestMatchers(
                             "/api/admin/**"
-                    ).hasRole("ADMIN")
+                    ).authenticated()
 
                     // =========================
                     // UTILISATEUR CONNECTÉ
