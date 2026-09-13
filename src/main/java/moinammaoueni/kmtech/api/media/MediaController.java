@@ -24,17 +24,7 @@ public class MediaController {
 
     private final MediaService mediaService;
 
-    // CORRECTION : Exposition du endpoint en POST avec le type de contenu approprié
-    @PostMapping(value = "/upload", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<MediaResponseDTO> uploadMedia(
-            @RequestParam("file") MultipartFile file, 
-            @RequestParam("folder") MediaFolder folder, 
-            @RequestParam("type") MediaType mediaType) {
-		
-        MediaResponseDTO response = mediaService.upload(file, folder, mediaType);
-        // Utilisation de HTTP 201 Created (plus adapté pour une création/upload de ressource)
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-	}
+   
     
     // Affficher la liste des médias
     @GetMapping

@@ -9,13 +9,13 @@ import moinammaoueni.kmtech.api.media.storage.MediaFolder;
 
 public interface MediaService {
 
-	MediaResponseDTO upload(MultipartFile file, MediaFolder folder, MediaType mediaType);
+	Media upload(MultipartFile file, MediaFolder folder, MediaType mediaType);
 
 	MediaResponseDTO findById(Long id);
 
 	List<MediaResponseDTO> findAll();
 
-	Media replace(Media oldMedia, MultipartFile newFile, MediaFolder folder);
+	Media replace(Media oldMedia, MultipartFile newFile, MediaFolder folder, MediaType mediaType);
 
 	void delete(Long id);
 

@@ -48,6 +48,14 @@ public class Media {
     @NotBlank
     @Column(nullable = false)
     private String originalName;
+    
+    @NotBlank
+    @Column(nullable = false)
+    private String storedName;
+    
+    @NotBlank
+    @Column(nullable = false)
+    private String folder;
 
     @NotNull
     @Column(nullable = false)

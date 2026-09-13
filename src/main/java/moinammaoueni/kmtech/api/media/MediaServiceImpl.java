@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+
 import moinammaoueni.kmtech.api.common.exception.ResourceNotFoundException;
 import moinammaoueni.kmtech.api.media.dto.MediaResponseDTO;
 import moinammaoueni.kmtech.api.media.storage.FileStorageService;
@@ -29,7 +30,7 @@ public class MediaServiceImpl implements MediaService {
     private final FileValidator fileValidator;
     
     @Override
-    public MediaResponseDTO upload(
+    public Media upload(
             MultipartFile file,
             MediaFolder folder, MediaType mediaType) {
 
@@ -40,6 +41,8 @@ public class MediaServiceImpl implements MediaService {
 
         Media media = Media.builder()
                 .originalName(storedFile.originalFilename())
+                .storedName(storedFile.storedFilename())
+                .folder(folder.getValue())
                 .size(storedFile.size())
                 .mimeType(storedFile.contentType())
                 .url(storedFile.url())
@@ -48,7 +51,7 @@ public class MediaServiceImpl implements MediaService {
 
         Media savedMedia = mediaRepository.save(media);
 
-        return mediaMapper.toMediaResponseDTO(savedMedia);
+        return savedMedia;
     }
     
     @Override
@@ -78,6 +81,17 @@ public class MediaServiceImpl implements MediaService {
     @Override
     public void delete(Long id) {
 
+    	Media media = mediaRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Media not found"));
+
+        fileStorageService.delete(
+                media.getStoredName(),
+                MediaFolder.valueOf(
+                        media.getFolder().toUpperCase()));
+
+        mediaRepository.delete(media);
      
 
     }
@@ -86,12 +100,31 @@ public class MediaServiceImpl implements MediaService {
     @Transactional
     public Media replace(Media oldMedia,
                          MultipartFile newFile,
-                         MediaFolder folder) {
+                         MediaFolder folder, MediaType mediaType) {
+  
+    	// Aucun nouveau fichier → on garde l'ancien
+        if (newFile == null || newFile.isEmpty()) {
+            return oldMedia;
+        }
+    	
+    	fileValidator.validate(newFile);
+    	
+    	// UPLOAD DU NOUVEAU FICHIER
+    	Media newMedia = upload(newFile, folder, mediaType);
+    	
+    	// Une fois le nouveau média créé, on supprime l'ancien
+    	if (oldMedia != null) {
 
-      
+            fileStorageService.delete(
+                    oldMedia.getStoredName(),
+                    folder
+            );
+
+            mediaRepository.delete(oldMedia);
+        }
        
 
-        return null;
+        return newMedia;
     }
     
     
