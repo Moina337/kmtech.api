@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import moinammaoueni.kmtech.api.media.dto.MediaResponseDTO;
 import moinammaoueni.kmtech.api.user.dto.ChangePasswordRequestDTO;
+import moinammaoueni.kmtech.api.user.dto.PublicUserResponseDTO;
 import moinammaoueni.kmtech.api.user.dto.UpdateUserRequestDTO;
 import moinammaoueni.kmtech.api.user.dto.UserResponseDTO;
 
@@ -31,7 +32,7 @@ public class UserController {
     }
 
     @GetMapping("/public/{slug}")
-    public UserResponseDTO findPublicBySlug(@PathVariable String slug) {
+    public PublicUserResponseDTO findPublicBySlug(@PathVariable String slug) {
         return userService.findPublicBySlug(slug);
     }
 

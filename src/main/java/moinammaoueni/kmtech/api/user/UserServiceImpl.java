@@ -1,5 +1,7 @@
 package moinammaoueni.kmtech.api.user;
 
+import java.util.List;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +17,15 @@ import moinammaoueni.kmtech.api.media.MediaService;
 import moinammaoueni.kmtech.api.media.MediaType;
 import moinammaoueni.kmtech.api.media.dto.MediaResponseDTO;
 import moinammaoueni.kmtech.api.media.storage.MediaFolder;
+import moinammaoueni.kmtech.api.organizationmember.OrganizationMember;
+import moinammaoueni.kmtech.api.organizationmember.OrganizationMemberMapper;
+import moinammaoueni.kmtech.api.organizationmember.OrganizationMemberRepository;
+import moinammaoueni.kmtech.api.skill.SkillResponseDTO;
+import moinammaoueni.kmtech.api.skill.SkillService;
+import moinammaoueni.kmtech.api.skill.UserSkill;
+import moinammaoueni.kmtech.api.skill.UserSkillRepository;
 import moinammaoueni.kmtech.api.user.dto.ChangePasswordRequestDTO;
+import moinammaoueni.kmtech.api.user.dto.PublicUserResponseDTO;
 import moinammaoueni.kmtech.api.user.dto.UpdateUserRequestDTO;
 import moinammaoueni.kmtech.api.user.dto.UserResponseDTO;
 
@@ -30,24 +40,66 @@ public class UserServiceImpl implements UserService {
 	private final PasswordEncoder passwordEncoder;
 	private final MediaService mediaService;
 	private final MediaMapper mediaMapper;
+	private final OrganizationMemberRepository organizationMemberRepository;
+	
+	private final SkillService skillService;
+	private final OrganizationMemberMapper organizationMemberMapper;
 
 	@Override
 	@Transactional(readOnly = true)
 	public UserResponseDTO findMe() {
 
-		User user = currentUser.get();
+	    User user = currentUser.get();
 
-		return userMapper.toResponseDTO(user);
+	    List<OrganizationMember> organizationMembers =
+	            organizationMemberRepository
+	                    .findByUserOrderByJoinedAtAsc(user);
+
+	    List<SkillResponseDTO> skillResponses =
+	            skillService.getMySkills();
+
+	    UserResponseDTO response =
+	            userMapper.toResponseDTO(user);
+
+	    response.setSkills(skillResponses);
+
+	    response.setOrganizations(
+	            organizationMembers.stream()
+	                    .map(organizationMemberMapper::toUserOrganizationResponseDTO)
+	                    .toList()
+	    );
+
+	    return response;
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public UserResponseDTO findPublicBySlug(String slug) {
+	public PublicUserResponseDTO findPublicBySlug(String slug) {
 
-		User user = userRepository.findBySlug(slug)
-				.orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable"));
+	    User user = userRepository.findBySlug(slug)
+	            .orElseThrow(() ->
+	                    new ResourceNotFoundException("Utilisateur introuvable")
+	            );
 
-		return userMapper.toResponseDTO(user);
+
+	    List<OrganizationMember> organizationMembers =
+	            organizationMemberRepository
+	                    .findByUserOrderByJoinedAtAsc(user);
+
+	    PublicUserResponseDTO response =
+	            userMapper.toPublicResponseDTO(user);
+
+	    List<SkillResponseDTO> skillResponses = skillService.getByUserSlug(slug);
+	    
+	    response.setSkills(skillResponses);
+	    		
+	    response.setOrganizations(
+	            organizationMembers.stream()
+	                    .map(organizationMemberMapper::toPublicUserOrganizationResponseDTO)
+	                    .toList()
+	    );
+
+	    return response;
 	}
 
 	@Override

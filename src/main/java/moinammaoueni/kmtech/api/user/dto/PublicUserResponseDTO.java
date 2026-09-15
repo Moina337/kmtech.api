@@ -8,22 +8,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import moinammaoueni.kmtech.api.media.dto.MediaResponseDTO;
-import moinammaoueni.kmtech.api.organizationmember.dto.OrganizationMemberResponseDTO;
+import moinammaoueni.kmtech.api.organizationmember.dto.PublicOrganisationMembre;
 import moinammaoueni.kmtech.api.skill.SkillResponseDTO;
-import moinammaoueni.kmtech.api.user.UserOrganizationResponseDTO;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserResponseDTO {
+public class PublicUserResponseDTO {
 
     private String slug;
 
     private String name;
-
-    private String email;
 
     private String bio;
 
@@ -39,5 +36,5 @@ public class UserResponseDTO {
 
     private List<SkillResponseDTO> skills;
 
-    private List<UserOrganizationResponseDTO> organizations;
+    private List<PublicUserOrganizationResponseDTO> organizations;
 }

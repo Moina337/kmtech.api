@@ -11,6 +11,7 @@ import moinammaoueni.kmtech.api.common.exception.BadRequestException;
 import moinammaoueni.kmtech.api.common.exception.ConflictException;
 import moinammaoueni.kmtech.api.common.exception.ResourceNotFoundException;
 import moinammaoueni.kmtech.api.user.User;
+import moinammaoueni.kmtech.api.user.UserRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +22,7 @@ public class SkillServiceImpl implements SkillService {
     private final UserSkillRepository userSkillRepository;
     private final SkillMapper skillMapper;
     private final CurrentUser currentUser;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -42,6 +44,8 @@ public class SkillServiceImpl implements SkillService {
                 .map(skillMapper::toSkillResponseDTO)
                 .toList();
     }
+    
+    
 
     @Override
     public SkillResponseDTO addSkillToMyProfile(Long skillId) {
@@ -156,4 +160,19 @@ public class SkillServiceImpl implements SkillService {
 
         return name.trim();
     }
+
+	@Override
+	public List<SkillResponseDTO> getByUserSlug(String userSlug) {
+		
+		User user = userRepository.findBySlug(userSlug)
+				.orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable"));
+
+		List<UserSkill> userSkills = userSkillRepository.findAllByUser(user);
+
+		return userSkills.stream()
+				.map(UserSkill::getSkill)
+				.map(skillMapper::toSkillResponseDTO)
+				.toList();
+		
+	}
 }

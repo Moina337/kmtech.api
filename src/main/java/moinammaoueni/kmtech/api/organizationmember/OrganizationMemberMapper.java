@@ -7,6 +7,8 @@ import org.mapstruct.Mapping;
 
 import moinammaoueni.kmtech.api.organizationmember.dto.OrganizationMemberResponseDTO;
 import moinammaoueni.kmtech.api.organizationmember.dto.PublicOrganisationMembre;
+import moinammaoueni.kmtech.api.user.UserOrganizationResponseDTO;
+import moinammaoueni.kmtech.api.user.dto.PublicUserOrganizationResponseDTO;
 
 @Mapper(componentModel = "spring")
 public interface OrganizationMemberMapper {
@@ -28,4 +30,18 @@ public interface OrganizationMemberMapper {
     List<OrganizationMemberResponseDTO> toResponseDTOs(
             List<OrganizationMember> organizationMembers
     );
+    
+    @Mapping(target = "slug", source = "organization.slug")
+    @Mapping(target = "name", source = "organization.name")
+    @Mapping(target = "media", source = "organization.media")
+    UserOrganizationResponseDTO toUserOrganizationResponseDTO(
+            OrganizationMember organizationMember
+    );
+    
+    @Mapping(target = "slug", source = "organization.slug")
+    @Mapping(target = "name", source = "organization.name")
+    @Mapping(target = "media", source = "organization.media")
+    PublicUserOrganizationResponseDTO toPublicUserOrganizationResponseDTO(
+			OrganizationMember organizationMember
+	);
 }

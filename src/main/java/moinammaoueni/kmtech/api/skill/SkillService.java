@@ -7,6 +7,8 @@ public interface SkillService {
     List<SkillResponseDTO> getActiveSkills();
 
     List<SkillResponseDTO> getMySkills();
+    
+    List<SkillResponseDTO> getByUserSlug(String userSlug);
 
     SkillResponseDTO addSkillToMyProfile(Long skillId);
 
