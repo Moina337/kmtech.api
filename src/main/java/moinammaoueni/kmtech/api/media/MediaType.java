@@ -1,5 +1,6 @@
 package moinammaoueni.kmtech.api.media;
 
 public enum MediaType {
-    PROFILE
+    PROFILE,
+    PROJECT
 }
