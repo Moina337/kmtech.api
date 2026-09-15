@@ -15,6 +15,8 @@ public interface OrganizationMemberRepository extends JpaRepository<Organization
     Optional<OrganizationMember> findByOrganizationAndUser(Organization organization, User user);
 
     List<OrganizationMember> findByOrganizationOrderByJoinedAtAsc(Organization organization);
+    
+    List<OrganizationMember> findByOrganization(Organization organization);
 
     List<OrganizationMember> findByUserOrderByJoinedAtAsc(User user);
 

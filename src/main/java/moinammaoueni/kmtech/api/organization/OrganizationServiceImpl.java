@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import moinammaoueni.kmtech.api.auth.CurrentUser;
 import moinammaoueni.kmtech.api.common.exception.BadRequestException;
 import moinammaoueni.kmtech.api.common.exception.ResourceNotFoundException;
+import moinammaoueni.kmtech.api.organization.dto.OrganizationPublicResponseDTO;
 import moinammaoueni.kmtech.api.organization.dto.OrganizationRequestDTO;
 import moinammaoueni.kmtech.api.organization.dto.OrganizationResponseDTO;
 import moinammaoueni.kmtech.api.organizationmember.OrganizationMember;
@@ -61,28 +62,34 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     @Transactional(readOnly = true)
     public List<OrganizationResponseDTO> findActiveOrganizations() {
-        return organizationRepository.findAllByStatusOrderByCreatedAtDesc(OrganizationStatus.ACTIVE)
-                .stream()
+
+        List<Organization> organizations =
+                organizationRepository.findAllByStatusOrderByCreatedAtDesc(OrganizationStatus.ACTIVE);
+
+        return organizations.stream()
                 .map(organizationMapper::toResponseDTO)
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public OrganizationResponseDTO findPublicBySlug(String slug) {
+    public OrganizationPublicResponseDTO findPublicBySlug(String slug) {
         Organization organization = organizationRepository.findBySlug(slug)
                 .orElseThrow(() -> new ResourceNotFoundException("Organisation introuvable"));
 
         if (organization.getStatus() != OrganizationStatus.ACTIVE) {
             throw new ResourceNotFoundException("Organisation introuvable");
         }
+        
+        List<OrganizationMember> members = organizationMemberRepository.findByOrganization(organization);
 
-        return organizationMapper.toResponseDTO(organization);
+        return organizationMapper.toPublicResponseDTO(organization,members);
     }
 
     @Override
-    public OrganizationResponseDTO updateOrganization(String slug, OrganizationRequestDTO request) {
-        Organization organization = organizationRepository.findBySlug(slug)
+    public OrganizationResponseDTO updateOrganization(Long memberId, OrganizationRequestDTO request) {
+    	
+        Organization organization = organizationRepository.findById(memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("Organisation introuvable"));
 
         User user = currentUser.get();
@@ -103,8 +110,8 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    public void deactivateOrganization(String slug) {
-        Organization organization = organizationRepository.findBySlug(slug)
+    public void deactivateOrganization(Long memberId) {
+        Organization organization = organizationRepository.findById(memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("Organisation introuvable"));
 
         User current = currentUser.get();

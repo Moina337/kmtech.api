@@ -4,10 +4,13 @@ import java.util.List;
 
 import moinammaoueni.kmtech.api.organizationmember.dto.OrganizationMemberResponseDTO;
 import moinammaoueni.kmtech.api.organizationmember.dto.OrganizationMemberRoleRequestDTO;
+import moinammaoueni.kmtech.api.organizationmember.dto.PublicOrganisationMembre;
 
 public interface OrganizationMemberService {
 
-    List<OrganizationMemberResponseDTO> getMembers(Long organizationId);
+    List<OrganizationMemberResponseDTO> getManagementMembers(Long organizationId);
+    
+    List<PublicOrganisationMembre> getPublicMembers(String organizationSlug);
 
     OrganizationMemberResponseDTO addMember(Long organizationId, String userSlug);
 

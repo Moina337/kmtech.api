@@ -16,6 +16,7 @@ import moinammaoueni.kmtech.api.organization.OrganizationRepository;
 import moinammaoueni.kmtech.api.organization.OrganizationStatus;
 import moinammaoueni.kmtech.api.organizationmember.dto.OrganizationMemberResponseDTO;
 import moinammaoueni.kmtech.api.organizationmember.dto.OrganizationMemberRoleRequestDTO;
+import moinammaoueni.kmtech.api.organizationmember.dto.PublicOrganisationMembre;
 import moinammaoueni.kmtech.api.user.User;
 import moinammaoueni.kmtech.api.user.UserRepository;
 
@@ -32,40 +33,43 @@ public class OrganizationMemberServiceImpl implements OrganizationMemberService 
 
     @Override
     @Transactional(readOnly = true)
-    public List<OrganizationMemberResponseDTO> getMembers(Long organizationId) {
-        Organization organization = organizationRepository.findById(organizationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Organisation introuvable"));
+    public List<OrganizationMemberResponseDTO> getManagementMembers(
+            Long organizationId) {
 
-        if (organization.getStatus() == OrganizationStatus.INACTIVE) {
-            User current = currentUser.get();
-            if (!isOwnerOrAdmin(organization, current)) {
-                throw new AccessDeniedException("Cette organisation est inactive");
-            }
-        }
+        Organization organization = getOrganization(organizationId);
 
-        return organizationMemberRepository.findByOrganizationOrderByJoinedAtAsc(organization)
+        User actor = currentUser.get();
+
+        requireOwnerOrAdmin(organization, actor);
+        requireActiveOrganization(organization);
+
+        return organizationMemberRepository
+                .findByOrganizationOrderByJoinedAtAsc(organization)
                 .stream()
                 .map(organizationMemberMapper::toResponseDTO)
                 .toList();
     }
 
     @Override
-    public OrganizationMemberResponseDTO addMember(Long organizationId, String userSlug) {
-        Organization organization = organizationRepository.findById(organizationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Organisation introuvable"));
+    public OrganizationMemberResponseDTO addMember(
+            Long organizationId,
+            String userSlug) {
+
+        Organization organization = getOrganization(organizationId);
 
         User actor = currentUser.get();
+
         requireOwnerOrAdmin(organization, actor);
+        requireActiveOrganization(organization);
 
-        if (organization.getStatus() == OrganizationStatus.INACTIVE) {
-            throw new BadRequestException("Une organisation inactive ne peut pas recevoir de nouveaux membres");
-        }
+        User targetUser = getUserBySlug(userSlug);
 
-        User targetUser = userRepository.findBySlug(userSlug)
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable"));
+        if (organizationMemberRepository
+                .existsByOrganizationAndUser(organization, targetUser)) {
 
-        if (organizationMemberRepository.existsByOrganizationAndUser(organization, targetUser)) {
-            throw new ConflictException("L'utilisateur appartient déjà à cette organisation");
+            throw new ConflictException(
+                    "L'utilisateur appartient déjà à cette organisation"
+            );
         }
 
         OrganizationMember member = OrganizationMember.builder()
@@ -74,85 +78,175 @@ public class OrganizationMemberServiceImpl implements OrganizationMemberService 
                 .role(OrganizationMemberRole.MEMBER)
                 .build();
 
-        return organizationMemberMapper.toResponseDTO(organizationMemberRepository.save(member));
+        OrganizationMember savedMember =
+                organizationMemberRepository.save(member);
+
+        return organizationMemberMapper.toResponseDTO(savedMember);
     }
 
     @Override
     public OrganizationMemberResponseDTO updateMemberRole(
             Long organizationId,
             String userSlug,
-            OrganizationMemberRoleRequestDTO request
-    ) {
+            OrganizationMemberRoleRequestDTO request) {
+
         if (request == null || request.getRole() == null) {
             throw new BadRequestException("Le rôle est obligatoire");
         }
 
         if (request.getRole() == OrganizationMemberRole.OWNER) {
-            throw new BadRequestException("Le rôle OWNER ne peut pas être attribué via cette action");
+            throw new BadRequestException(
+                    "Le rôle OWNER ne peut pas être attribué via cette action"
+            );
         }
 
-        Organization organization = organizationRepository.findById(organizationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Organisation introuvable"));
+        Organization organization = getOrganization(organizationId);
 
         User actor = currentUser.get();
+
         requireOwnerOrAdmin(organization, actor);
+        requireActiveOrganization(organization);
 
-        if (organization.getStatus() == OrganizationStatus.INACTIVE) {
-            throw new BadRequestException("Une organisation inactive ne peut pas modifier ses membres");
-        }
+        User targetUser = getUserBySlug(userSlug);
 
-        User targetUser = userRepository.findBySlug(userSlug)
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable"));
-
-        OrganizationMember member = organizationMemberRepository.findByOrganizationAndUser(organization, targetUser)
-                .orElseThrow(() -> new ResourceNotFoundException("Cet utilisateur n'est pas membre de l'organisation"));
+        OrganizationMember member =
+                organizationMemberRepository
+                        .findByOrganizationAndUser(
+                                organization,
+                                targetUser
+                        )
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Cet utilisateur n'est pas membre de l'organisation"
+                                )
+                        );
 
         if (member.getRole() == OrganizationMemberRole.OWNER) {
-            throw new BadRequestException("Le propriétaire ne peut pas être modifié");
+            throw new BadRequestException(
+                    "Le propriétaire ne peut pas être modifié"
+            );
         }
 
         member.setRole(request.getRole());
-        return organizationMemberMapper.toResponseDTO(organizationMemberRepository.save(member));
+
+        return organizationMemberMapper.toResponseDTO(member);
     }
 
     @Override
-    public void removeMember(Long organizationId, String userSlug) {
-        Organization organization = organizationRepository.findById(organizationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Organisation introuvable"));
+    public void removeMember(
+            Long organizationId,
+            String userSlug) {
+
+        Organization organization = getOrganization(organizationId);
 
         User actor = currentUser.get();
+
         requireOwnerOrAdmin(organization, actor);
+        requireActiveOrganization(organization);
 
-        if (organization.getStatus() == OrganizationStatus.INACTIVE) {
-            throw new BadRequestException("Une organisation inactive ne peut pas retirer de membre");
-        }
+        User targetUser = getUserBySlug(userSlug);
 
-        User targetUser = userRepository.findBySlug(userSlug)
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable"));
-
-        OrganizationMember member = organizationMemberRepository.findByOrganizationAndUser(organization, targetUser)
-                .orElseThrow(() -> new ResourceNotFoundException("Cet utilisateur n'est pas membre de l'organisation"));
+        OrganizationMember member =
+                organizationMemberRepository
+                        .findByOrganizationAndUser(
+                                organization,
+                                targetUser
+                        )
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Cet utilisateur n'est pas membre de l'organisation"
+                                )
+                        );
 
         if (member.getRole() == OrganizationMemberRole.OWNER) {
-            throw new BadRequestException("Le propriétaire ne peut pas être retiré de l'organisation");
+            throw new BadRequestException(
+                    "Le propriétaire ne peut pas être retiré de l'organisation"
+            );
         }
 
         organizationMemberRepository.delete(member);
     }
 
-    private void requireOwnerOrAdmin(Organization organization, User user) {
-        OrganizationMember member = organizationMemberRepository.findByOrganizationAndUser(organization, user)
-                .orElseThrow(() -> new AccessDeniedException("Vous n'êtes pas membre de cette organisation"));
+    @Override
+    @Transactional(readOnly = true)
+    public List<PublicOrganisationMembre> getPublicMembers(
+            String organizationSlug) {
 
-        if (member.getRole() != OrganizationMemberRole.OWNER && member.getRole() != OrganizationMemberRole.ADMIN) {
-            throw new AccessDeniedException("Droits insuffisants pour gérer les membres");
+        Organization organization =
+                organizationRepository.findBySlug(organizationSlug)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Organisation introuvable"
+                                )
+                        );
+
+        if (organization.getStatus() == OrganizationStatus.INACTIVE) {
+            throw new ResourceNotFoundException(
+                    "Organisation introuvable"
+            );
         }
+
+        return organizationMemberRepository
+                .findByOrganizationOrderByJoinedAtAsc(organization)
+                .stream()
+                .map(organizationMemberMapper::toPublicResponseDTO)
+                .toList();
     }
 
-    private boolean isOwnerOrAdmin(Organization organization, User user) {
-        return organizationMemberRepository.findByOrganizationAndUser(organization, user)
-                .map(member -> member.getRole() == OrganizationMemberRole.OWNER
-                        || member.getRole() == OrganizationMemberRole.ADMIN)
-                .orElse(false);
+    private Organization getOrganization(Long organizationId) {
+
+        return organizationRepository.findById(organizationId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Organisation introuvable"
+                        )
+                );
+    }
+
+    private User getUserBySlug(String userSlug) {
+
+        return userRepository.findBySlug(userSlug)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Utilisateur introuvable"
+                        )
+                );
+    }
+
+    private OrganizationMember requireOwnerOrAdmin(
+            Organization organization,
+            User user) {
+
+        OrganizationMember member =
+                organizationMemberRepository
+                        .findByOrganizationAndUser(
+                                organization,
+                                user
+                        )
+                        .orElseThrow(() ->
+                                new AccessDeniedException(
+                                        "Vous n'êtes pas membre de cette organisation"
+                                )
+                        );
+
+        if (member.getRole() != OrganizationMemberRole.OWNER
+                && member.getRole() != OrganizationMemberRole.ADMIN) {
+
+            throw new AccessDeniedException(
+                    "Droits insuffisants pour gérer les membres"
+            );
+        }
+
+        return member;
+    }
+
+    private void requireActiveOrganization(
+            Organization organization) {
+
+        if (organization.getStatus() == OrganizationStatus.INACTIVE) {
+            throw new BadRequestException(
+                    "Cette organisation est inactive"
+            );
+        }
     }
 }
