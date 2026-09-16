@@ -11,15 +11,33 @@ import moinammaoueni.kmtech.api.project.dto.ProjectSummaryDTO;
 
 public interface ProjectService {
 
+    // Creation
     ProjectResponseDTO create(ProjectRequestDTO request);
 
+    // Public
     List<ProjectSummaryDTO> getPublishedProjects();
 
     ProjectResponseDTO getPublicProject(String slug);
 
+    List<ProjectSummaryDTO> getPublicUserProjects(String userSlug);
+
+    List<ProjectSummaryDTO> getPublicOrganizationProjects(
+            String organizationSlug
+    );
+
+    // Authenticated user
     List<ProjectSummaryDTO> getMyProjects();
 
-    ProjectResponseDTO update(Long projectId, ProjectRequestDTO request);
+    // Organization management
+    List<ProjectSummaryDTO> getOrganizationProjects(
+            Long organizationId
+    );
+
+    // Management
+    ProjectResponseDTO update(
+            Long projectId,
+            ProjectRequestDTO request
+    );
 
     void delete(Long projectId);
 
@@ -27,7 +45,14 @@ public interface ProjectService {
 
     ProjectResponseDTO draft(Long projectId);
 
-    MediaResponseDTO uploadMedia(Long projectId, MultipartFile file);
+    // Media
+    MediaResponseDTO uploadMedia(
+            Long projectId,
+            MultipartFile file
+    );
 
-    void deleteMedia(Long projectId, Long mediaId);
+    void deleteMedia(
+            Long projectId,
+            Long mediaId
+    );
 }

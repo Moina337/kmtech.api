@@ -86,26 +86,7 @@ public class ProjectServiceImpl implements ProjectService {
     public List<ProjectSummaryDTO> getPublishedProjects() {
         List<Project> projects = projectRepository.findByStatus(ProjectStatus.PUBLISHED);
 
-        return projects.stream().map(p -> {
-            ProjectSummaryDTO summary = projectMapper.toSummaryDTO(p);
-
-            // cover: first media by createdAt asc
-            var mediaList = mediaRepository.findByProjectOrderByCreatedAtAsc(p);
-            if (!mediaList.isEmpty()) {
-                summary = new ProjectSummaryDTO(
-                        p.getSlug(),
-                        p.getName(),
-                        p.getDescription(),
-                        mediaMapper.toMediaResponseDTO(mediaList.get(0)),
-                        summary.ownerSlug(),
-                        summary.ownerName(),
-                        summary.organizationSlug(),
-                        summary.organizationName()
-                );
-            }
-
-            return summary;
-        }).toList();
+        return projects.stream().map(this::buildSummary).toList();
     }
 
     @Override
@@ -118,28 +99,58 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<ProjectSummaryDTO> getPublicUserProjects(String userSlug) {
+        User user = userRepository.findBySlug(userSlug)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable"));
+
+        List<Project> projects = projectRepository.findByUserAndStatus(user, ProjectStatus.PUBLISHED);
+
+        return projects.stream().map(this::buildSummary).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProjectSummaryDTO> getPublicOrganizationProjects(String organizationSlug) {
+        Organization organization = organizationRepository.findBySlug(organizationSlug)
+                .orElseThrow(() -> new ResourceNotFoundException("Organisation introuvable"));
+
+        List<Project> projects = projectRepository.findByOrganizationAndStatus(
+                organization,
+                ProjectStatus.PUBLISHED
+        );
+
+        return projects.stream().map(this::buildSummary).toList();
+    }
+
+    @Override
     public List<ProjectSummaryDTO> getMyProjects() {
         User user = currentUser.get();
 
         var projects = projectRepository.findByUser(user);
 
-        return projects.stream().map(p -> {
-            ProjectSummaryDTO summary = projectMapper.toSummaryDTO(p);
-            var mediaList = mediaRepository.findByProjectOrderByCreatedAtAsc(p);
-            if (!mediaList.isEmpty()) {
-                summary = new ProjectSummaryDTO(
-                        p.getSlug(),
-                        p.getName(),
-                        p.getDescription(),
-                        mediaMapper.toMediaResponseDTO(mediaList.get(0)),
-                        summary.ownerSlug(),
-                        summary.ownerName(),
-                        summary.organizationSlug(),
-                        summary.organizationName()
-                );
-            }
-            return summary;
-        }).toList();
+        return projects.stream().map(this::buildSummary).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProjectSummaryDTO> getOrganizationProjects(Long organizationId) {
+        Organization organization = organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Organisation introuvable"));
+
+        User user = currentUser.get();
+
+        OrganizationMember member = organizationMemberRepository.findByOrganizationAndUser(organization, user)
+                .orElseThrow(() -> new BadRequestException("Vous n'êtes pas membre de cette organisation"));
+
+        if (!(member.getRole() == OrganizationMemberRole.OWNER || member.getRole() == OrganizationMemberRole.ADMIN)) {
+            throw new BadRequestException("Seuls le propriétaire et les administrateurs peuvent voir les projets de cette organisation");
+        }
+
+        return projectRepository.findByOrganization(organization)
+                .stream()
+                .map(this::buildSummary)
+                .toList();
     }
 
     @Override
@@ -239,6 +250,26 @@ public class ProjectServiceImpl implements ProjectService {
 
         // delete physical file and DB record via MediaService
         mediaService.delete(mediaId);
+    }
+
+    private ProjectSummaryDTO buildSummary(Project project) {
+        ProjectSummaryDTO summary = projectMapper.toSummaryDTO(project);
+
+        var mediaList = mediaRepository.findByProjectOrderByCreatedAtAsc(project);
+        if (!mediaList.isEmpty()) {
+            return new ProjectSummaryDTO(
+                    project.getSlug(),
+                    project.getName(),
+                    project.getDescription(),
+                    mediaMapper.toMediaResponseDTO(mediaList.get(0)),
+                    summary.ownerSlug(),
+                    summary.ownerName(),
+                    summary.organizationSlug(),
+                    summary.organizationName()
+            );
+        }
+
+        return summary;
     }
 
     private ProjectResponseDTO buildResponse(Project project) {

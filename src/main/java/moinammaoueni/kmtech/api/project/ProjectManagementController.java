@@ -65,4 +65,9 @@ public class ProjectManagementController {
     public void deleteMedia(@PathVariable Long projectId, @PathVariable Long mediaId) {
         projectService.deleteMedia(projectId, mediaId);
     }
+
+    @GetMapping("/organizations/{organizationId}/projects")
+    public List<ProjectSummaryDTO> organizationProjects(@PathVariable Long organizationId) {
+        return projectService.getOrganizationProjects(organizationId);
+    }
 }

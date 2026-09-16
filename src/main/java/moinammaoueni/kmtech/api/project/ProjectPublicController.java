@@ -28,4 +28,14 @@ public class ProjectPublicController {
     public ProjectResponseDTO getBySlug(@PathVariable String slug) {
         return projectService.getPublicProject(slug);
     }
+
+    @GetMapping("/users/{userSlug}/projects")
+    public List<ProjectSummaryDTO> listUserProjects(@PathVariable String userSlug) {
+        return projectService.getPublicUserProjects(userSlug);
+    }
+
+    @GetMapping("/organizations/{organizationSlug}/projects")
+    public List<ProjectSummaryDTO> listOrganizationProjects(@PathVariable String organizationSlug) {
+        return projectService.getPublicOrganizationProjects(organizationSlug);
+    }
 }
