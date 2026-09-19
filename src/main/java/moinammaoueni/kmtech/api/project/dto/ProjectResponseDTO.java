@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import moinammaoueni.kmtech.api.media.dto.MediaResponseDTO;
+import moinammaoueni.kmtech.api.organization.dto.OrganizationSummaryDTO;
 import moinammaoueni.kmtech.api.project.ProjectStatus;
+import moinammaoueni.kmtech.api.user.dto.UserSummaryDTO;
 
 public record ProjectResponseDTO(
     String slug,
@@ -14,10 +16,8 @@ public record ProjectResponseDTO(
     String website,
     String github,
     List<MediaResponseDTO> media,
-    String ownerSlug,
-    String ownerName,
-    String organizationSlug,
-    String organizationName,
+    UserSummaryDTO user,
+    OrganizationSummaryDTO organization,
     LocalDateTime createdAt,
     LocalDateTime updatedAt
 ) {}

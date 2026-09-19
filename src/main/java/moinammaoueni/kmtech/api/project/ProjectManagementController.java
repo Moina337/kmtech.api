@@ -1,6 +1,7 @@
 package moinammaoueni.kmtech.api.project;
 
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -13,9 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import moinammaoueni.kmtech.api.project.dto.ProjectManagementResponse;
 import moinammaoueni.kmtech.api.project.dto.ProjectRequestDTO;
 import moinammaoueni.kmtech.api.project.dto.ProjectResponseDTO;
-import moinammaoueni.kmtech.api.project.dto.ProjectSummaryDTO;
+
+import moinammaoueni.kmtech.api.project.dto.ProjectSummaryManagement;
 
 import java.util.List;
 
@@ -32,13 +35,32 @@ public class ProjectManagementController {
     }
 
     @GetMapping("/users/me/projects")
-    public List<ProjectSummaryDTO> myProjects() {
+    public List<ProjectSummaryManagement> myProjects() {
         return projectService.getMyProjects();
     }
+    
+    @GetMapping("/users/me/projects/{projectId}")
+    public ResponseEntity<ProjectManagementResponse> getMyProjectById(Long projectId) {
+    	
+    	ProjectManagementResponse response = projectService.getMyProjectById(projectId);
+    	
+    	return ResponseEntity.ok(response);
+		
+	}
 
     @PatchMapping("/projects/{projectId}")
     public ProjectResponseDTO update(@PathVariable Long projectId, @RequestBody ProjectRequestDTO request) {
         return projectService.update(projectId, request);
+    }
+    
+    @PatchMapping("/projects/{projectId}/organization")
+    public ResponseEntity<ProjectManagementResponse> getOrganizationProjectById(Long organizationId, Long projectId) {
+    	
+    	ProjectManagementResponse 
+    	response = projectService.getOrganizationProjectById(organizationId, projectId);
+    	
+    	return ResponseEntity.ok(response);
+    	
     }
 
     @DeleteMapping("/projects/{projectId}")
@@ -67,7 +89,7 @@ public class ProjectManagementController {
     }
 
     @GetMapping("/organizations/{organizationId}/projects")
-    public List<ProjectSummaryDTO> organizationProjects(@PathVariable Long organizationId) {
+    public List<ProjectSummaryManagement> organizationProjects(@PathVariable Long organizationId) {
         return projectService.getOrganizationProjects(organizationId);
     }
 }

@@ -5,9 +5,13 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import moinammaoueni.kmtech.api.media.dto.MediaResponseDTO;
+import moinammaoueni.kmtech.api.project.dto.ProjectManagementResponse;
+
 import moinammaoueni.kmtech.api.project.dto.ProjectRequestDTO;
 import moinammaoueni.kmtech.api.project.dto.ProjectResponseDTO;
 import moinammaoueni.kmtech.api.project.dto.ProjectSummaryDTO;
+import moinammaoueni.kmtech.api.project.dto.ProjectSummaryManagement;
+import moinammaoueni.kmtech.api.project.dto.ProjectUpdateRequest;
 
 public interface ProjectService {
 
@@ -26,17 +30,21 @@ public interface ProjectService {
     );
 
     // Authenticated user
-    List<ProjectSummaryDTO> getMyProjects();
+    List<ProjectSummaryManagement> getMyProjects();
+    
+    ProjectManagementResponse getMyProjectById(Long projectId);
 
     // Organization management
-    List<ProjectSummaryDTO> getOrganizationProjects(
+    List<ProjectSummaryManagement> getOrganizationProjects(
             Long organizationId
     );
+    
+    ProjectManagementResponse getOrganizationProjectById(Long organizationId, Long projectId);
 
     // Management
     ProjectResponseDTO update(
             Long projectId,
-            ProjectRequestDTO request
+            ProjectUpdateRequest request
     );
 
     void delete(Long projectId);

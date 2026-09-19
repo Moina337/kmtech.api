@@ -22,9 +22,13 @@ import moinammaoueni.kmtech.api.organization.OrganizationRepository;
 import moinammaoueni.kmtech.api.organizationmember.OrganizationMember;
 import moinammaoueni.kmtech.api.organizationmember.OrganizationMemberRepository;
 import moinammaoueni.kmtech.api.organizationmember.OrganizationMemberRole;
+import moinammaoueni.kmtech.api.project.dto.ProjectManagementResponse;
+
 import moinammaoueni.kmtech.api.project.dto.ProjectRequestDTO;
 import moinammaoueni.kmtech.api.project.dto.ProjectResponseDTO;
 import moinammaoueni.kmtech.api.project.dto.ProjectSummaryDTO;
+import moinammaoueni.kmtech.api.project.dto.ProjectSummaryManagement;
+import moinammaoueni.kmtech.api.project.dto.ProjectUpdateRequest;
 import moinammaoueni.kmtech.api.project.ProjectMapper;
 import moinammaoueni.kmtech.api.user.User;
 import moinammaoueni.kmtech.api.user.UserRepository;
@@ -34,7 +38,9 @@ import moinammaoueni.kmtech.api.user.UserRepository;
 @Transactional
 public class ProjectServiceImpl implements ProjectService {
 
-    private final ProjectRepository projectRepository;
+  
+
+	private final ProjectRepository projectRepository;
     private final ProjectMapper projectMapper;
     private final CurrentUser currentUser;
     private final OrganizationRepository organizationRepository;
@@ -78,15 +84,18 @@ public class ProjectServiceImpl implements ProjectService {
 
         Project saved = projectRepository.save(project);
 
-        return buildResponse(saved);
+        return projectMapper.toResponseDTO(saved);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ProjectSummaryDTO> getPublishedProjects() {
+    	
         List<Project> projects = projectRepository.findByStatus(ProjectStatus.PUBLISHED);
 
-        return projects.stream().map(this::buildSummary).toList();
+        return projects.stream()
+        		.map(projectMapper::toSummaryDTO)
+        		.toList();
     }
 
     @Override
@@ -95,7 +104,7 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = projectRepository.findBySlugAndStatus(slug, ProjectStatus.PUBLISHED)
                 .orElseThrow(() -> new ResourceNotFoundException("Projet introuvable"));
 
-        return buildResponse(project);
+        return projectMapper.toResponseDTO(project);
     }
 
     @Override
@@ -106,7 +115,9 @@ public class ProjectServiceImpl implements ProjectService {
 
         List<Project> projects = projectRepository.findByUserAndStatus(user, ProjectStatus.PUBLISHED);
 
-        return projects.stream().map(this::buildSummary).toList();
+        return projects.stream()
+        		.map(projectMapper::toSummaryDTO)
+        		.toList();
     }
 
     @Override
@@ -120,21 +131,25 @@ public class ProjectServiceImpl implements ProjectService {
                 ProjectStatus.PUBLISHED
         );
 
-        return projects.stream().map(this::buildSummary).toList();
+        return projects.stream()
+        		.map(projectMapper::toSummaryDTO)
+        		.toList();
     }
 
     @Override
-    public List<ProjectSummaryDTO> getMyProjects() {
+    public List<ProjectSummaryManagement> getMyProjects() {
         User user = currentUser.get();
 
         var projects = projectRepository.findByUser(user);
 
-        return projects.stream().map(this::buildSummary).toList();
+        return projects.stream()
+        		.map(projectMapper::toSummaryManagementDTO)
+        		.toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProjectSummaryDTO> getOrganizationProjects(Long organizationId) {
+    public List<ProjectSummaryManagement> getOrganizationProjects(Long organizationId) {
         Organization organization = organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Organisation introuvable"));
 
@@ -149,12 +164,56 @@ public class ProjectServiceImpl implements ProjectService {
 
         return projectRepository.findByOrganization(organization)
                 .stream()
-                .map(this::buildSummary)
+                .map(projectMapper::toSummaryManagementDTO)
                 .toList();
     }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public ProjectManagementResponse getMyProjectById(Long projectId) {
+
+        User current = currentUser.get();
+
+        Project project = projectRepository
+                .findByIdAndUser(projectId, current)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Projet personnel introuvable"
+                        )
+                );
+
+        return projectMapper.toManagementProject(project);
+    }
+
+  	@Override
+  	public ProjectManagementResponse getOrganizationProjectById(Long organizationId, Long projectId) {
+
+  		Organization organization = organizationRepository.findById(organizationId)
+  	            .orElseThrow(() ->
+  	                    new ResourceNotFoundException(
+  	                            "Organisation introuvable"
+  	                    )
+  	            );
+  		
+  		Project project = projectRepository
+  	            .findByIdAndOrganization(projectId, organization)
+  	            .orElseThrow(() ->
+  	                    new ResourceNotFoundException(
+  	                            "Projet introuvable dans cette organisation"
+  	                    )
+  	            );
+
+  	    User user = currentUser.get();
+  	    
+  		requireProjectAccessForModify(project, user);
+  		
+  		return projectMapper.toManagementProject(project);
+  		
+  	}
 
     @Override
-    public ProjectResponseDTO update(Long projectId, ProjectRequestDTO request) {
+    public ProjectResponseDTO update(Long projectId, ProjectUpdateRequest request) {
+    	
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Projet introuvable"));
 
@@ -172,7 +231,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         Project updated = projectRepository.save(project);
 
-        return buildResponse(updated);
+        return projectMapper.toResponseDTO(updated);
     }
 
     @Override
@@ -199,7 +258,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setStatus(ProjectStatus.PUBLISHED);
         Project saved = projectRepository.save(project);
 
-        return buildResponse(saved);
+        return projectMapper.toResponseDTO(saved);
     }
 
     @Override
@@ -213,7 +272,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setStatus(ProjectStatus.DRAFT);
         Project saved = projectRepository.save(project);
 
-        return buildResponse(saved);
+        return projectMapper.toResponseDTO(saved);
     }
 
     @Override
@@ -252,51 +311,11 @@ public class ProjectServiceImpl implements ProjectService {
         mediaService.delete(mediaId);
     }
 
-    private ProjectSummaryDTO buildSummary(Project project) {
-        ProjectSummaryDTO summary = projectMapper.toSummaryDTO(project);
+   
 
-        var mediaList = mediaRepository.findByProjectOrderByCreatedAtAsc(project);
-        if (!mediaList.isEmpty()) {
-            return new ProjectSummaryDTO(
-                    project.getSlug(),
-                    project.getName(),
-                    project.getDescription(),
-                    mediaMapper.toMediaResponseDTO(mediaList.get(0)),
-                    summary.ownerSlug(),
-                    summary.ownerName(),
-                    summary.organizationSlug(),
-                    summary.organizationName()
-            );
-        }
-
-        return summary;
-    }
-
-    private ProjectResponseDTO buildResponse(Project project) {
-        ProjectResponseDTO dto = projectMapper.toResponseDTO(project);
-
-        var mediaList = mediaRepository.findByProjectOrderByCreatedAtAsc(project);
-
-        dto = new ProjectResponseDTO(
-                dto.slug(),
-                dto.name(),
-                dto.description(),
-                dto.status(),
-                dto.website(),
-                dto.github(),
-                mediaList.stream().map(mediaMapper::toMediaResponseDTO).toList(),
-                dto.ownerSlug(),
-                dto.ownerName(),
-                dto.organizationSlug(),
-                dto.organizationName(),
-                project.getCreatedAt(),
-                project.getUpdatedAt()
-        );
-
-        return dto;
-    }
-
+   
     private void requireProjectAccessForModify(Project project, User user) {
+    	
         if (project.getUser() != null) {
             if (!project.getUser().getId().equals(user.getId())) {
                 throw new BadRequestException("Vous n'avez pas les droits pour gérer ce projet");

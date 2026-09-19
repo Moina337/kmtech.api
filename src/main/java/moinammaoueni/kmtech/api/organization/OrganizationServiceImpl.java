@@ -6,11 +6,16 @@ import java.util.List;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 import moinammaoueni.kmtech.api.auth.CurrentUser;
 import moinammaoueni.kmtech.api.common.exception.BadRequestException;
 import moinammaoueni.kmtech.api.common.exception.ResourceNotFoundException;
+import moinammaoueni.kmtech.api.media.Media;
+import moinammaoueni.kmtech.api.media.MediaService;
+import moinammaoueni.kmtech.api.media.MediaType;
+import moinammaoueni.kmtech.api.media.storage.MediaFolder;
 import moinammaoueni.kmtech.api.organization.dto.OrganizationPublicResponseDTO;
 import moinammaoueni.kmtech.api.organization.dto.OrganizationRequestDTO;
 import moinammaoueni.kmtech.api.organization.dto.OrganizationResponseDTO;
@@ -29,6 +34,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     private final OrganizationMemberRepository organizationMemberRepository;
     private final OrganizationMapper organizationMapper;
     private final CurrentUser currentUser;
+    private final MediaService mediaService;
 
     @Override
     public OrganizationResponseDTO createOrganization(OrganizationRequestDTO request) {
@@ -58,6 +64,8 @@ public class OrganizationServiceImpl implements OrganizationService {
 
         return organizationMapper.toResponseDTO(organization);
     }
+    
+    
 
     @Override
     @Transactional(readOnly = true)
@@ -167,4 +175,21 @@ public class OrganizationServiceImpl implements OrganizationService {
             throw new AccessDeniedException("Seul le propriétaire peut effectuer cette action");
         }
     }
+
+
+
+	@Override
+	public OrganizationResponseDTO uploadOrganizationLogo(Long organizationId, MultipartFile file) {
+		
+		Organization organization = organizationRepository.findById(organizationId)
+				.orElseThrow(() -> new ResourceNotFoundException("Organisation introuvable"));
+ 
+		Media media = mediaService.replace(organization.getMedia(),
+				file, MediaFolder.ORGANIZATIONS, MediaType.ORGANIZATION);
+		
+		organization.setMedia(media); 	
+		 
+		
+		return organizationMapper.toResponseDTO(organizationRepository.save(organization));
+	}
 }

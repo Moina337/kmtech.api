@@ -1,6 +1,7 @@
 package moinammaoueni.kmtech.api.project;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -21,6 +23,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import moinammaoueni.kmtech.api.media.Media;
 import moinammaoueni.kmtech.api.organization.Organization;
 import moinammaoueni.kmtech.api.user.User;
 
@@ -43,6 +46,7 @@ public class Project {
     @NotBlank
     @Column(nullable = false)
     private String name;
+    
 
     @Column(length = 2000)
     private String description;
@@ -61,6 +65,9 @@ public class Project {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id", nullable = true)
     private Organization organization;
+    
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
+    private List<Media> media;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

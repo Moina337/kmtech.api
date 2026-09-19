@@ -2,6 +2,8 @@ package moinammaoueni.kmtech.api.organization;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import moinammaoueni.kmtech.api.organization.dto.OrganizationPublicResponseDTO;
 import moinammaoueni.kmtech.api.organization.dto.OrganizationRequestDTO;
 import moinammaoueni.kmtech.api.organization.dto.OrganizationResponseDTO;
@@ -10,6 +12,9 @@ import moinammaoueni.kmtech.api.organizationmember.dto.MyOrganizationResponseDTO
 public interface OrganizationService {
 
     OrganizationResponseDTO createOrganization(OrganizationRequestDTO request);
+    
+    // Upload a logo for an organization
+    OrganizationResponseDTO uploadOrganizationLogo(Long organizationId, MultipartFile file);
 
     List<OrganizationResponseDTO> findActiveOrganizations();
     
