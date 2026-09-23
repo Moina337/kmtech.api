@@ -23,6 +23,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import moinammaoueni.kmtech.api.comment.Comment;
 import moinammaoueni.kmtech.api.media.Media;
 import moinammaoueni.kmtech.api.organization.Organization;
 import moinammaoueni.kmtech.api.user.User;
@@ -68,6 +69,9 @@ public class Project {
     
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
     private List<Media> media;
+    
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
+    private List<Comment> comments;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

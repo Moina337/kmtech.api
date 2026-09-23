@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 import moinammaoueni.kmtech.api.comment.dto.CommentRequestDTO;
 import moinammaoueni.kmtech.api.comment.dto.CommentResponseDTO;
+import moinammaoueni.kmtech.api.project.ProjectService;
 
 
 @RestController
@@ -29,17 +30,7 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    @PostMapping
-    public ResponseEntity<CommentResponseDTO> create(
-            @Valid @RequestBody CommentRequestDTO request) {
-
-        CommentResponseDTO response = commentService.create(request);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
-    }
-
+  
     @GetMapping
     public ResponseEntity<List<CommentResponseDTO>> findAll() {
 
@@ -75,4 +66,6 @@ public class CommentController {
 
         return ResponseEntity.noContent().build();
     }
+    
+   
 }

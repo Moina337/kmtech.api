@@ -7,9 +7,14 @@ import org.mapstruct.Mapping;
 
 import moinammaoueni.kmtech.api.comment.dto.CommentRequestDTO;
 import moinammaoueni.kmtech.api.comment.dto.CommentResponseDTO;
+import moinammaoueni.kmtech.api.media.MediaMapper;
+import moinammaoueni.kmtech.api.user.UserMapper;
 
 
-@Mapper(componentModel = "spring")
+@Mapper(
+	    componentModel = "spring",
+	    uses = { MediaMapper.class, UserMapper.class }
+	)
 public interface CommentMapper {
 
     @Mapping(target = "id", ignore = true)

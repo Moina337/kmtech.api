@@ -25,17 +25,14 @@ public class CommentServiceImpl implements CommentService {
     private final CurrentUser currentUser;
 
     @Override
-    public CommentResponseDTO create(CommentRequestDTO request) {
+    public Comment prepare(CommentRequestDTO request) {
 
         User user = currentUser.get();
 
         Comment comment = commentMapper.toEntity(request);
-
         comment.setAuthor(user);
 
-        Comment savedComment = commentRepository.save(comment);
-
-        return commentMapper.toResponse(savedComment);
+        return comment;
     }
 
     @Override

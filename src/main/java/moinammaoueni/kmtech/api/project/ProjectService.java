@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import moinammaoueni.kmtech.api.comment.dto.CommentRequestDTO;
+import moinammaoueni.kmtech.api.comment.dto.CommentResponseDTO;
 import moinammaoueni.kmtech.api.media.dto.MediaResponseDTO;
 import moinammaoueni.kmtech.api.project.dto.ProjectManagementResponse;
 
@@ -15,52 +17,44 @@ import moinammaoueni.kmtech.api.project.dto.ProjectUpdateRequest;
 
 public interface ProjectService {
 
-    // Creation
-    ProjectResponseDTO create(ProjectRequestDTO request);
+	// Creation
+	ProjectResponseDTO create(ProjectRequestDTO request);
 
-    // Public
-    List<ProjectSummaryDTO> getPublishedProjects();
+	// Public
+	List<ProjectSummaryDTO> getPublishedProjects();
 
-    ProjectResponseDTO getPublicProject(String slug);
+	ProjectResponseDTO getPublicProject(String slug);
 
-    List<ProjectSummaryDTO> getPublicUserProjects(String userSlug);
+	List<ProjectSummaryDTO> getPublicUserProjects(String userSlug);
 
-    List<ProjectSummaryDTO> getPublicOrganizationProjects(
-            String organizationSlug
-    );
+	List<ProjectSummaryDTO> getPublicOrganizationProjects(String organizationSlug);
 
-    // Authenticated user
-    List<ProjectSummaryManagement> getMyProjects();
-    
-    ProjectManagementResponse getMyProjectById(Long projectId);
+	// Authenticated user
+	List<ProjectSummaryManagement> getMyProjects();
 
-    // Organization management
-    List<ProjectSummaryManagement> getOrganizationProjects(
-            Long organizationId
-    );
-    
-    ProjectManagementResponse getOrganizationProjectById(Long organizationId, Long projectId);
+	ProjectManagementResponse getMyProjectById(Long projectId);
 
-    // Management
-    ProjectResponseDTO update(
-            Long projectId,
-            ProjectUpdateRequest request
-    );
+	// Organization management
+	List<ProjectSummaryManagement> getOrganizationProjects(Long organizationId);
 
-    void delete(Long projectId);
+	ProjectManagementResponse getOrganizationProjectById(Long organizationId, Long projectId);
 
-    ProjectResponseDTO publish(Long projectId);
+	// Management
+	ProjectResponseDTO update(Long projectId, ProjectUpdateRequest request);
 
-    ProjectResponseDTO draft(Long projectId);
+	void delete(Long projectId);
 
-    // Media
-    MediaResponseDTO uploadMedia(
-            Long projectId,
-            MultipartFile file
-    );
+	ProjectResponseDTO publish(Long projectId);
 
-    void deleteMedia(
-            Long projectId,
-            Long mediaId
-    );
+	ProjectResponseDTO draft(Long projectId);
+
+	// Media
+	MediaResponseDTO uploadMedia(Long projectId, MultipartFile file);
+
+	// Comment
+	CommentResponseDTO ajouterCommentaire(String slug, CommentRequestDTO request);
+	
+	List<CommentResponseDTO> getProjectComment(Long projectId);
+
+	void deleteMedia(Long projectId, Long mediaId);
 }

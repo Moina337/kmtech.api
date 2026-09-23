@@ -8,7 +8,7 @@ import moinammaoueni.kmtech.api.comment.dto.CommentResponseDTO;
 
 public interface CommentService {
 
-    CommentResponseDTO create(CommentRequestDTO request);
+	Comment prepare(CommentRequestDTO request);
 
     List<CommentResponseDTO> findAll();
 
