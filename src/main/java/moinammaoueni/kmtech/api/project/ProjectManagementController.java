@@ -19,6 +19,7 @@ import moinammaoueni.kmtech.api.project.dto.ProjectRequestDTO;
 import moinammaoueni.kmtech.api.project.dto.ProjectResponseDTO;
 
 import moinammaoueni.kmtech.api.project.dto.ProjectSummaryManagement;
+import moinammaoueni.kmtech.api.project.dto.ProjectUpdateRequest;
 
 import java.util.List;
 
@@ -49,7 +50,8 @@ public class ProjectManagementController {
 	}
 
     @PatchMapping("/projects/{projectId}")
-    public ProjectResponseDTO update(@PathVariable Long projectId, @RequestBody ProjectRequestDTO request) {
+    public ProjectResponseDTO update(@PathVariable Long projectId, @RequestBody ProjectUpdateRequest request) {
+    	
         return projectService.update(projectId, request);
     }
     
