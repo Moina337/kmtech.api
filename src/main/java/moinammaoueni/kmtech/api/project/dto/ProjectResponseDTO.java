@@ -3,6 +3,7 @@ package moinammaoueni.kmtech.api.project.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import moinammaoueni.kmtech.api.comment.dto.CommentResponseDTO;
 import moinammaoueni.kmtech.api.media.dto.MediaResponseDTO;
 import moinammaoueni.kmtech.api.organization.dto.OrganizationSummaryDTO;
 import moinammaoueni.kmtech.api.project.ProjectStatus;
@@ -18,6 +19,7 @@ public record ProjectResponseDTO(
     List<MediaResponseDTO> media,
     UserSummaryDTO user,
     OrganizationSummaryDTO organization,
+    List<CommentResponseDTO> comments,
     LocalDateTime createdAt,
     LocalDateTime updatedAt
 ) {}

@@ -5,6 +5,7 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import moinammaoueni.kmtech.api.comment.CommentMapper;
 import moinammaoueni.kmtech.api.media.Media;
 import moinammaoueni.kmtech.api.media.MediaMapper;
 import moinammaoueni.kmtech.api.organization.OrganizationMapper;
@@ -19,7 +20,8 @@ import moinammaoueni.kmtech.api.user.UserMapper;
 	    uses = {
 	        MediaMapper.class,
 	        UserMapper.class,
-	        OrganizationMapper.class
+	        OrganizationMapper.class,
+	        CommentMapper.class
 	    }
 	)
 	public interface ProjectMapper {

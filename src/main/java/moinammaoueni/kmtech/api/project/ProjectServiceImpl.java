@@ -8,6 +8,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 import moinammaoueni.kmtech.api.auth.CurrentUser;
+import moinammaoueni.kmtech.api.comment.Comment;
+import moinammaoueni.kmtech.api.comment.CommentMapper;
+import moinammaoueni.kmtech.api.comment.CommentRepository;
+import moinammaoueni.kmtech.api.comment.CommentService;
+import moinammaoueni.kmtech.api.comment.CommentType;
+import moinammaoueni.kmtech.api.comment.dto.CommentRequestDTO;
+import moinammaoueni.kmtech.api.comment.dto.CommentResponseDTO;
 import moinammaoueni.kmtech.api.common.exception.BadRequestException;
 import moinammaoueni.kmtech.api.common.exception.ResourceNotFoundException;
 import moinammaoueni.kmtech.api.media.Media;
@@ -49,6 +56,10 @@ public class ProjectServiceImpl implements ProjectService {
     private final MediaService mediaService;
     private final MediaRepository mediaRepository;
     private final MediaMapper mediaMapper;
+    private final CommentRepository commentRepository;
+    private final CommentService commentService;
+    private final CommentMapper commentMapper;  
+  
 
     @Override
     public ProjectResponseDTO create(ProjectRequestDTO request) {
@@ -310,6 +321,8 @@ public class ProjectServiceImpl implements ProjectService {
         // delete physical file and DB record via MediaService
         mediaService.delete(mediaId);
     }
+    
+    
 
    
 
@@ -350,4 +363,40 @@ public class ProjectServiceImpl implements ProjectService {
 
         return slug;
     }
+
+    @Override
+    public CommentResponseDTO ajouterCommentaire(
+            String slug,
+            CommentRequestDTO request) {
+
+        Project project = projectRepository.findBySlug(slug)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Projet introuvable"));
+
+        Comment comment = commentService.prepare(request);
+
+        comment.setProject(project);
+        comment.setType(CommentType.PROJECT);
+
+        Comment savedComment = commentRepository.save(comment);
+
+        return commentMapper.toResponse(savedComment);
+    }
+
+	@Override
+	public List<CommentResponseDTO> getProjectComment(Long projectId) {
+      
+		Project project = projectRepository.findById(projectId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Projet introuvable"));
+		
+		return commentRepository.findByProjectOrderByCreatedAtDesc(project)
+				.stream()
+				.map(commentMapper::toResponse)
+				.toList();
+		
+	
+	}
+    
+    
 }

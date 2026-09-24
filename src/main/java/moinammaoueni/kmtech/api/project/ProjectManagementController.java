@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import moinammaoueni.kmtech.api.comment.dto.CommentResponseDTO;
 import moinammaoueni.kmtech.api.project.dto.ProjectManagementResponse;
 import moinammaoueni.kmtech.api.project.dto.ProjectRequestDTO;
 import moinammaoueni.kmtech.api.project.dto.ProjectResponseDTO;
@@ -51,7 +52,7 @@ public class ProjectManagementController {
 
     @PatchMapping("/projects/{projectId}")
     public ProjectResponseDTO update(@PathVariable Long projectId, @RequestBody ProjectUpdateRequest request) {
-    	
+
         return projectService.update(projectId, request);
     }
     
@@ -62,6 +63,13 @@ public class ProjectManagementController {
     	response = projectService.getOrganizationProjectById(organizationId, projectId);
     	
     	return ResponseEntity.ok(response);
+    	
+    }
+    
+    @GetMapping("/projects/{projectId}/comment")
+    public ResponseEntity<List<CommentResponseDTO>> getProjectComment(Long projectId){
+    	
+    	return ResponseEntity.ok(projectService.getProjectComment(projectId));
     	
     }
 
