@@ -1,26 +1,23 @@
 package moinammaoueni.kmtech.api.post.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import moinammaoueni.kmtech.api.organization.dto.OrganizationSummaryDTO;
-import moinammaoueni.kmtech.api.user.dto.UserSummaryDTO;
+import moinammaoueni.kmtech.api.media.dto.MediaResponseDTO;
 
-@Getter
-@Setter
+
+
 @Builder
-public class PostResponse {
+public record PostResponse(
+		
+		Long id,
 
-    private Long id;
+		String content, 
+		
+		 List<MediaResponseDTO> media,
 
-    private String content;
-    private String media;
-
-    private UserSummaryDTO author;
-    private OrganizationSummaryDTO organization;
-
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-}
+		LocalDateTime create
+		
+		
+		) {}

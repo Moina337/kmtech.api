@@ -10,7 +10,9 @@ import java.time.LocalDateTime;
 
 
 @Entity
-@Table(name = "posts")
+@Table(name = "posts", uniqueConstraints = {
+    @UniqueConstraint(columnNames = "slug")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,22 +24,15 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(nullable = false, unique = true, length = 255)
+    private String slug;
+
+    @Column(columnDefinition = "TEXT")
     private String content;
-
-    private String media;
-
-    /**
-     * Auteur réel du post.
-     * Toujours présent.
-     */
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "created_by_id", nullable = false)
-    private User createdBy;
 
     /**
      * Profil utilisateur utilisé comme contexte de publication.
-     * Peut être null.
+     * Peut être null si post d'organisation.
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -45,7 +40,7 @@ public class Post {
 
     /**
      * Organisation utilisée comme contexte de publication.
-     * Peut être null.
+     * Peut être null si post personnel.
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id")

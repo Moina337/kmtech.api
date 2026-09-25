@@ -8,7 +8,9 @@ public enum MediaFolder {
 
     PROJECTS("projects"),
 
-    APPLICATIONS("applications");
+    APPLICATIONS("applications"),
+
+    POSTS("posts");
 
     private final String value;
 

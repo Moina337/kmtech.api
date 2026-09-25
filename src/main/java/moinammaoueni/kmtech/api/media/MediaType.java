@@ -4,4 +4,5 @@ public enum MediaType {
     PROFILE,
     PROJECT,
     ORGANIZATION,
+    POST
 }
