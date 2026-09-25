@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import moinammaoueni.kmtech.api.post.Post;
 import moinammaoueni.kmtech.api.project.Project;
 import moinammaoueni.kmtech.api.user.User;
 
@@ -16,5 +17,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findByAuthorOrderByCreatedAtDesc(User author);
 
     List<Comment> findByProjectOrderByCreatedAtDesc(Project project);
+    
+    List<Comment> findByPostOrderByCreatedAtDesc(Post post);
     
 }

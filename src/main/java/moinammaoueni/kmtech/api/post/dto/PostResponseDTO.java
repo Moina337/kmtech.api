@@ -5,7 +5,7 @@ import java.util.List;
 
 
 import lombok.Builder;
-
+import moinammaoueni.kmtech.api.comment.dto.CommentResponseDTO;
 import moinammaoueni.kmtech.api.media.dto.MediaResponseDTO;
 import moinammaoueni.kmtech.api.organization.dto.OrganizationSummaryDTO;
 import moinammaoueni.kmtech.api.user.dto.UserSummaryDTO;
@@ -18,10 +18,13 @@ public record PostResponseDTO(
 		String content,
 
 		List<MediaResponseDTO> medias,
+		
+		List<CommentResponseDTO> comments,
 
 		UserSummaryDTO author, 
 		
 		OrganizationSummaryDTO organization,
+		
 
 		LocalDateTime create
 

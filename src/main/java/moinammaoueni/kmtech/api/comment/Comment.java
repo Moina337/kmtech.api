@@ -23,6 +23,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import moinammaoueni.kmtech.api.post.Post;
 import moinammaoueni.kmtech.api.project.Project;
 import moinammaoueni.kmtech.api.user.User;
 
@@ -55,6 +56,10 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
+    
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "post_id")
+    private Post post;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

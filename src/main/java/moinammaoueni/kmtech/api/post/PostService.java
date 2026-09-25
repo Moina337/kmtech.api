@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.persistence.PostUpdate;
+import moinammaoueni.kmtech.api.comment.dto.CommentRequestDTO;
+import moinammaoueni.kmtech.api.comment.dto.CommentResponseDTO;
 import moinammaoueni.kmtech.api.media.dto.MediaResponseDTO;
 import moinammaoueni.kmtech.api.post.dto.PostRequestDTO;
 import moinammaoueni.kmtech.api.post.dto.PostResponse;
@@ -33,6 +35,10 @@ public interface PostService {
     void delete(Long postId);
 
     List<MediaResponseDTO> uploadMedia(Long postId, List<MultipartFile> files);
+    
+    CommentResponseDTO commentPost(String slug, CommentRequestDTO dto);
+    
+    
 
     void deleteMedia(Long postId, Long mediaId);
 }

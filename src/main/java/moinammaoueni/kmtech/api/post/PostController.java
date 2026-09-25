@@ -17,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.persistence.PostUpdate;
 import lombok.RequiredArgsConstructor;
+import moinammaoueni.kmtech.api.comment.dto.CommentRequestDTO;
+import moinammaoueni.kmtech.api.comment.dto.CommentResponseDTO;
 import moinammaoueni.kmtech.api.media.dto.MediaResponseDTO;
 import moinammaoueni.kmtech.api.post.dto.PostRequestDTO;
 import moinammaoueni.kmtech.api.post.dto.PostResponse;
@@ -93,4 +95,10 @@ public class PostController {
         postService.deleteMedia(postId, mediaId);
         return ResponseEntity.noContent().build();
     }
+    
+    @PostMapping("/public/{slug}/comment") 
+    public ResponseEntity<CommentResponseDTO> commentPost(@PathVariable String slug, @RequestBody CommentRequestDTO dto){
+     	return ResponseEntity.ok(postService.commentPost(slug, dto));
+     }
 }
+

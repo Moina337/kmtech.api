@@ -14,6 +14,13 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.persistence.PostUpdate;
 import lombok.RequiredArgsConstructor;
 import moinammaoueni.kmtech.api.auth.CurrentUser;
+import moinammaoueni.kmtech.api.comment.Comment;
+import moinammaoueni.kmtech.api.comment.CommentMapper;
+import moinammaoueni.kmtech.api.comment.CommentRepository;
+import moinammaoueni.kmtech.api.comment.CommentService;
+import moinammaoueni.kmtech.api.comment.CommentType;
+import moinammaoueni.kmtech.api.comment.dto.CommentRequestDTO;
+import moinammaoueni.kmtech.api.comment.dto.CommentResponseDTO;
 import moinammaoueni.kmtech.api.common.exception.BadRequestException;
 import moinammaoueni.kmtech.api.common.exception.ResourceNotFoundException;
 import moinammaoueni.kmtech.api.media.Media;
@@ -51,6 +58,9 @@ public class PostServiceImpl implements PostService {
     private final PostMapper postMapper;
     private final FileStorageService fileStorageService;
     private final MediaMapper mediaMapper;
+    private final CommentMapper commentMapper;
+    private final CommentService commentService;
+    private final CommentRepository commentRepository;
 
     @Override
     @Transactional
@@ -80,8 +90,10 @@ public class PostServiceImpl implements PostService {
         post = postRepository.save(post);
 
         List<Media> media = mediaRepository.findByPost(post);
+        
+        List<Comment> comments = commentRepository.findByPostOrderByCreatedAtDesc(post);
 
-        return postMapper.toResponseDTO(post, media);
+        return postMapper.toResponseDTO(post, media, comments);
     }
 
     @Override
@@ -111,8 +123,10 @@ public class PostServiceImpl implements PostService {
                         new ResourceNotFoundException("Post introuvable"));
 
         List<Media> media = mediaRepository.findByPost(post);
+        
+        List<Comment> comments = commentRepository.findByPostOrderByCreatedAtDesc(post);
 
-        return postMapper.toResponseDTO(post, media);
+        return postMapper.toResponseDTO(post, media, comments);
     }
 
     @Override
@@ -219,11 +233,13 @@ public class PostServiceImpl implements PostService {
         post = postRepository.save(post);
 
         List<Media> media = mediaRepository.findByPost(post);
+        
+        List<Comment> comments = commentRepository.findByPostOrderByCreatedAtDesc(post);
 
         validatePostContentOrMedia(post, media);
 
        
-        return postMapper.toResponseDTO(post, media);
+        return postMapper.toResponseDTO(post, media, comments);
     }
 
 
@@ -248,6 +264,8 @@ public class PostServiceImpl implements PostService {
 
         postRepository.delete(post);
     }
+    
+    
 
     @Override
     @Transactional
@@ -446,6 +464,26 @@ public class PostServiceImpl implements PostService {
 
         return slug;
     }
+
+	@Override
+	public CommentResponseDTO commentPost(String slug, CommentRequestDTO dto) {
+		
+		
+		 Post post = postRepository.findBySlug(slug)
+	                .orElseThrow(() ->
+	                        new ResourceNotFoundException("Post introuvable"));
+		 
+		Comment comment = commentService.prepare(dto);
+		
+		comment.setType(CommentType.POST);
+		comment.setPost(post);
+		
+		Comment saved = commentRepository.save(comment);
+		
+		return commentMapper.toResponse(saved);
+	}
+
+	
 	
 }
 
