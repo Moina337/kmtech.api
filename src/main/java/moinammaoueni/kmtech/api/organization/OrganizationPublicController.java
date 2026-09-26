@@ -16,7 +16,7 @@ import moinammaoueni.kmtech.api.organizationmember.dto.PublicOrganisationMembre;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/")
+@RequestMapping("/api/public/")
 public class OrganizationPublicController {
 	
 	private final OrganizationService organizationService;
