@@ -14,29 +14,24 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 
 @RestController
+@RequestMapping("/api/users/me/skills")
 @RequiredArgsConstructor
-@RequestMapping("/api")
-public class SkillController {
+public class SkillManagementController {
 
     private final SkillService skillService;
 
-    @GetMapping("/skills")
-    public ResponseEntity<List<SkillResponseDTO>> getActiveSkills() {
-        return ResponseEntity.ok(skillService.getActiveSkills());
-    }
-
-    @GetMapping("/users/me/skills")
+    @GetMapping
     public ResponseEntity<List<SkillResponseDTO>> getMySkills() {
         return ResponseEntity.ok(skillService.getMySkills());
     }
 
-    @PostMapping("/users/me/skills/{skillId}")
+    @PostMapping("/{skillId}")
     public ResponseEntity<SkillResponseDTO> addSkillToMyProfile(@PathVariable Long skillId) {
         SkillResponseDTO response = skillService.addSkillToMyProfile(skillId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @DeleteMapping("/users/me/skills/{skillId}")
+    @DeleteMapping("/{skillId}")
     public ResponseEntity<Void> removeSkillFromMyProfile(@PathVariable Long skillId) {
         skillService.removeSkillFromMyProfile(skillId);
         return ResponseEntity.noContent().build();
