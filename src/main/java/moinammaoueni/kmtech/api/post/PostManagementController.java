@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.persistence.PostUpdate;
 import lombok.RequiredArgsConstructor;
 import moinammaoueni.kmtech.api.comment.dto.CommentRequestDTO;
 import moinammaoueni.kmtech.api.comment.dto.CommentResponseDTO;
@@ -24,45 +23,23 @@ import moinammaoueni.kmtech.api.post.dto.PostRequestDTO;
 import moinammaoueni.kmtech.api.post.dto.PostResponse;
 import moinammaoueni.kmtech.api.post.dto.PostResponseDTO;
 import moinammaoueni.kmtech.api.post.dto.PostSummaryDTO;
-import moinammaoueni.kmtech.api.post.dto.PostSummaryPublic;
+import moinammaoueni.kmtech.api.post.dto.PostUpdate;
 
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
-public class PostController {
+public class PostManagementController {
 
     private final PostService postService;
-
-    @GetMapping
-    public ResponseEntity<List<PostSummaryPublic>> findAll() {
-        return ResponseEntity.ok(postService.findAll());
-    }
-
-    @GetMapping("/public/{slug}")
-    public ResponseEntity<PostResponseDTO> findPublicBySlug(@PathVariable String slug) {
-        return ResponseEntity.ok(postService.findPublicBySlug(slug));
-    }
-
-    @GetMapping("/user/{userSlug}")
-    public ResponseEntity<List<PostSummaryPublic>> findUserPosts(@PathVariable String userSlug) {
-        return ResponseEntity.ok(postService.findUserPosts(userSlug));
-    }
-
-    @GetMapping("/organization/{organizationSlug}")
-    public ResponseEntity<List<PostSummaryPublic>> findOrganizationPosts(@PathVariable String organizationSlug) {
-        return ResponseEntity.ok(postService.findOrganizationPosts(organizationSlug));
-    }
 
     @GetMapping("/me")
     public ResponseEntity<List<PostSummaryDTO>> findMyPosts() {
         return ResponseEntity.ok(postService.findMyPosts());
     }
-    
+
     @GetMapping("/{postId}")
-    public ResponseEntity<PostResponse> findById(@PathVariable Long postId){
-    	
-    	return ResponseEntity.ok(postService.findById(postId));
-    	
+    public ResponseEntity<PostResponse> findById(@PathVariable Long postId) {
+        return ResponseEntity.ok(postService.findById(postId));
     }
 
     @PostMapping
@@ -83,22 +60,19 @@ public class PostController {
 
     @PostMapping(value = "/{postId}/media", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<List<MediaResponseDTO>> uploadMedia(
-            @PathVariable Long postId, 
-            @RequestParam("files") List<MultipartFile> files) { // Utilisation de List ici
-        
+            @PathVariable Long postId,
+            @RequestParam("files") List<MultipartFile> files) {
         return ResponseEntity.ok(postService.uploadMedia(postId, files));
     }
-
 
     @DeleteMapping("/{postId}/media/{mediaId}")
     public ResponseEntity<Void> deleteMedia(@PathVariable Long postId, @PathVariable Long mediaId) {
         postService.deleteMedia(postId, mediaId);
         return ResponseEntity.noContent().build();
     }
-    
-    @PostMapping("/public/{slug}/comment") 
-    public ResponseEntity<CommentResponseDTO> commentPost(@PathVariable String slug, @RequestBody CommentRequestDTO dto){
-     	return ResponseEntity.ok(postService.commentPost(slug, dto));
-     }
-}
 
+    @PostMapping("/{slug}/comment")
+    public ResponseEntity<CommentResponseDTO> commentPost(@PathVariable String slug, @RequestBody CommentRequestDTO dto) {
+        return ResponseEntity.ok(postService.commentPost(slug, dto));
+    }
+}

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.persistence.PostUpdate;
+
 import lombok.RequiredArgsConstructor;
 import moinammaoueni.kmtech.api.auth.CurrentUser;
 import moinammaoueni.kmtech.api.comment.Comment;
@@ -41,6 +41,7 @@ import moinammaoueni.kmtech.api.post.dto.PostResponse;
 import moinammaoueni.kmtech.api.post.dto.PostResponseDTO;
 import moinammaoueni.kmtech.api.post.dto.PostSummaryDTO;
 import moinammaoueni.kmtech.api.post.dto.PostSummaryPublic;
+import moinammaoueni.kmtech.api.post.dto.PostUpdate;
 import moinammaoueni.kmtech.api.user.User;
 import moinammaoueni.kmtech.api.user.UserRepository;
 
