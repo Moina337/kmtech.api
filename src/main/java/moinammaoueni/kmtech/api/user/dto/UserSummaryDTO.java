@@ -11,5 +11,6 @@ public class UserSummaryDTO {
 
     private String slug;
     private String name;
+    private String titre;
     private String profileImage;
 }

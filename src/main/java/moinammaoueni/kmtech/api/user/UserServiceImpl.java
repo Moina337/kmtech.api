@@ -105,18 +105,39 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserResponseDTO updateMe(UpdateUserRequestDTO request) {
 
-		User user = currentUser.get();
+	    User user = currentUser.get();
 
-		user.setName(request.getName());
-		user.setBio(request.getBio());
-		user.setLocation(request.getLocation());
-		user.setWebsite(request.getWebsite());
-		user.setGithub(request.getGithub());
-		user.setLinkedin(request.getLinkedin());
+	    if (request.getName() != null) {
+	        user.setName(request.getName());
+	    }
 
-		User updatedUser = userRepository.save(user);
+	    if (request.getTitre() != null) {
+	        user.setTitre(request.getTitre());
+	    }
 
-		return userMapper.toResponseDTO(updatedUser);
+	    if (request.getBio() != null) {
+	        user.setBio(request.getBio());
+	    }
+
+	    if (request.getLocation() != null) {
+	        user.setLocation(request.getLocation());
+	    }
+
+	    if (request.getWebsite() != null) {
+	        user.setWebsite(request.getWebsite());
+	    }
+
+	    if (request.getGithub() != null) {
+	        user.setGithub(request.getGithub());
+	    }
+
+	    if (request.getLinkedin() != null) {
+	        user.setLinkedin(request.getLinkedin());
+	    }
+
+	    User updatedUser = userRepository.save(user);
+
+	    return userMapper.toResponseDTO(updatedUser);
 	}
 
 	@Override

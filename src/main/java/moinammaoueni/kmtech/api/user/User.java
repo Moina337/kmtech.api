@@ -40,6 +40,9 @@ public class User {
     @NotBlank
     @Column(nullable = false)
     private String name;
+    
+    @Column(length = 100)
+    private String titre;
 
     @Column(nullable = false, unique = true)
     private String slug;

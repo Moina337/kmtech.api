@@ -22,6 +22,8 @@ public class UserResponseDTO {
     private String slug;
 
     private String name;
+    
+    private String titre;
 
     private String email;
 

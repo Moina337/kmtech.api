@@ -14,6 +14,8 @@ import lombok.Setter;
 public class UpdateUserRequestDTO {
 
     private String name;
+    
+    private String titre;
 
     private String bio;
 
