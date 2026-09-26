@@ -168,23 +168,23 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PostSummaryDTO> findUserPosts(String userSlug) {
+    public List<PostSummaryPublic> findUserPosts(String userSlug) {
 
         User user = userRepository.findBySlug(userSlug)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Utilisateur introuvable"));
 
         List<Post> posts = postRepository.findByUser(user);
+        
+        
 
         return posts.stream()
                 .map(post -> {
-                    Media cover = mediaRepository
-                            .findByPostOrderByCreatedAtDesc(post)
-                            .stream()
-                            .findFirst()
-                            .orElse(null);
+                    
+                 // On récupère simplement la liste des médias associés au post
+                    List<Media> medias = mediaRepository.findByPost(post);
 
-                    return postMapper.toSummaryDTO(post, cover);
+                    return postMapper.toPostSummaryPublic(post, medias);
                 })
                 .toList();
     }

@@ -29,6 +29,7 @@ public interface PostMapper {
 	@Mapping(target = "create", source = "post.createdAt")
 	PostResponse toResponse(Post post, List<Media> media);
 
+	@Mapping(target = "id", source = "post.id")
 	@Mapping(target = "create", source = "post.createdAt")
 	PostSummaryDTO toSummaryDTO(Post post, Media cover);
 

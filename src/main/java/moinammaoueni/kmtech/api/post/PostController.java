@@ -44,7 +44,7 @@ public class PostController {
     }
 
     @GetMapping("/user/{userSlug}")
-    public ResponseEntity<List<PostSummaryDTO>> findUserPosts(@PathVariable String userSlug) {
+    public ResponseEntity<List<PostSummaryPublic>> findUserPosts(@PathVariable String userSlug) {
         return ResponseEntity.ok(postService.findUserPosts(userSlug));
     }
 

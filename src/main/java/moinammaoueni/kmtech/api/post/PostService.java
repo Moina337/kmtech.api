@@ -24,7 +24,7 @@ public interface PostService {
 
     List<PostSummaryDTO> findMyPosts();
 
-    List<PostSummaryDTO> findUserPosts(String userSlug);
+    List<PostSummaryPublic> findUserPosts(String userSlug);
 
     List<PostSummaryPublic> findOrganizationPosts(String organizationSlug);
     

@@ -10,6 +10,8 @@ import moinammaoueni.kmtech.api.user.dto.UserSummaryDTO;
 @Builder
 public record PostSummaryDTO(
 
+		Long id,
+		
 		String slug,
 
 		String content,
