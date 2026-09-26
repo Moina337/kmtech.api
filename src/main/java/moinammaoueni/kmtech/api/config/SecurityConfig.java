@@ -82,55 +82,19 @@ public class SecurityConfig {
             // Provider pour l'authentification email/password
             .authenticationProvider(authenticationProvider)
 
-            // Gestion des autorisations
             .authorizeHttpRequests(auth -> auth
-
-                    // =========================
-                    // AUTHENTIFICATION PUBLIQUE
-                    // =========================
-                    .requestMatchers(
-                            "/api/auth/**"
-                    ).permitAll()
+                    .requestMatchers("/api/auth/**").permitAll()
                     .requestMatchers("/api/public/**").permitAll()
-
-                    // =========================
-                    // SWAGGER / OPENAPI
-                    // =========================
                     .requestMatchers(
                             "/swagger-ui/**",
                             "/swagger-ui.html",
                             "/v3/api-docs/**"
                     ).permitAll()
 
-                    // =========================
-                    // ADMIN
-                    // =========================
-                    .requestMatchers(
-                            "/api/admin/**"
-                    ).authenticated()
+                    .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                    // =========================
-                    // UTILISATEUR CONNECTÉ
-                    // =========================
-                    .requestMatchers(
-                            "/api/users/me"
-                    ).authenticated()
                     .requestMatchers("/api/media/**").permitAll() // TODO: à sécuriser plus tard
 
-                    // =========================
-                    // CONSULTATION PUBLIQUE
-                    // =========================
-                    .requestMatchers(
-                            "/api/users/{slug}",
-                            "/api/organizations/**",
-                            "/api/projects/**",
-                            "/api/applications/**",
-                            "/api/opportunities/**"
-                    ).permitAll()
-
-                    // =========================
-                    // TOUT LE RESTE
-                    // =========================
                     .anyRequest().authenticated()
             )
 
