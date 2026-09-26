@@ -1,5 +1,6 @@
 package moinammaoueni.kmtech.api.project;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,8 +33,9 @@ public class ProjectManagementController {
     private final ProjectService projectService;
 
     @PostMapping()
-    public ProjectResponseDTO create(@RequestBody ProjectRequestDTO request) {
-        return projectService.create(request);
+    public ResponseEntity<ProjectResponseDTO> create(@RequestBody ProjectRequestDTO request) {
+        ProjectResponseDTO response = projectService.create(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/me")

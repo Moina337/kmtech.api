@@ -2,6 +2,7 @@ package moinammaoueni.kmtech.api.post;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -44,7 +45,8 @@ public class PostManagementController {
 
     @PostMapping
     public ResponseEntity<PostResponseDTO> create(@RequestBody PostRequestDTO request) {
-        return ResponseEntity.ok(postService.create(request));
+        PostResponseDTO response = postService.create(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PatchMapping("/{postId}")
