@@ -9,6 +9,7 @@ import moinammaoueni.kmtech.api.media.MediaMapper;
 import moinammaoueni.kmtech.api.organization.dto.OrganizationPublicResponseDTO;
 import moinammaoueni.kmtech.api.organization.dto.OrganizationResponseDTO;
 import moinammaoueni.kmtech.api.organization.dto.OrganizationSummaryDTO;
+import moinammaoueni.kmtech.api.organization.dto.OrganizationSummaryManagement;
 import moinammaoueni.kmtech.api.organizationmember.OrganizationMember;
 
 @Mapper(componentModel = "spring", uses = MediaMapper.class)
@@ -18,6 +19,8 @@ public interface OrganizationMapper {
     OrganizationResponseDTO toResponseDTO(Organization organization);
     
     OrganizationSummaryDTO toSummaryDTO(Organization organization);
+    
+    OrganizationSummaryManagement toSummaryManagement(Organization organization);
     
     OrganizationPublicResponseDTO toPublicResponseDTO(
             Organization organization,

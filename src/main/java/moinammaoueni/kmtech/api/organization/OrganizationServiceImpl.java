@@ -19,6 +19,7 @@ import moinammaoueni.kmtech.api.media.storage.MediaFolder;
 import moinammaoueni.kmtech.api.organization.dto.OrganizationPublicResponseDTO;
 import moinammaoueni.kmtech.api.organization.dto.OrganizationRequestDTO;
 import moinammaoueni.kmtech.api.organization.dto.OrganizationResponseDTO;
+import moinammaoueni.kmtech.api.organization.dto.OrganizationSummaryManagement;
 import moinammaoueni.kmtech.api.organizationmember.OrganizationMember;
 import moinammaoueni.kmtech.api.organizationmember.OrganizationMemberRepository;
 import moinammaoueni.kmtech.api.organizationmember.OrganizationMemberRole;
@@ -49,7 +50,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                 .type(request.getType())
                 .website(request.getWebsite())
                 .location(request.getLocation())
-                .status(OrganizationStatus.ACTIVE)
+                .status(OrganizationStatus.PENDING)
                 .build();
 
         organization = organizationRepository.save(organization);
@@ -128,6 +129,55 @@ public class OrganizationServiceImpl implements OrganizationService {
         organization.setStatus(OrganizationStatus.INACTIVE);
         organizationRepository.save(organization);
     }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<OrganizationSummaryManagement> findOrganizationsForAdmin(OrganizationStatus status) {
+        // TODO: requireAdmin(currentUser.get());
+
+        List<Organization> organizations = (status != null)
+                ? organizationRepository.findAllByStatusOrderByCreatedAtDesc(status)
+                : organizationRepository.findAllByOrderByCreatedAtDesc();
+
+        return organizations.stream()
+                .map(organizationMapper::toSummaryManagement)
+                .toList();
+    }
+
+    @Override
+    public OrganizationResponseDTO validateOrganization(Long organizationId) {
+        Organization organization = organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Organisation introuvable"));
+
+        // TODO: requireAdmin(currentUser.get()); — à activer une fois le
+        // mécanisme de rôle confirmé, ne pas laisser cette méthode ouverte en prod
+
+        if (organization.getStatus() != OrganizationStatus.PENDING) {
+            throw new BadRequestException("Seule une organisation en attente peut être validée");
+        }
+
+        organization.setStatus(OrganizationStatus.ACTIVE);
+        return organizationMapper.toResponseDTO(organizationRepository.save(organization));
+    }
+
+    @Override
+    public OrganizationResponseDTO rejectOrganization(Long organizationId, String reason) {
+        Organization organization = organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Organisation introuvable"));
+
+        // TODO: requireAdmin(currentUser.get()); — même remarque que ci-dessus
+
+        if (organization.getStatus() != OrganizationStatus.PENDING) {
+            throw new BadRequestException("Seule une organisation en attente peut être refusée");
+        }
+
+        organization.setStatus(OrganizationStatus.REJECTED);
+        // TODO: stocker "reason" quelque part (nouveau champ sur Organization,
+        // ou table séparée d'historique) si tu veux le montrer au owner —
+        // pour l'instant le paramètre est reçu mais pas persisté, dis-moi
+        // où tu veux qu'il aille
+        return organizationMapper.toResponseDTO(organizationRepository.save(organization));
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -202,8 +252,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 		 Organization organization = organizationRepository.findById(organizationId)
 	                .orElseThrow(() -> new ResourceNotFoundException("Organisation introuvable"));
 		 
-		 User user = currentUser.get();
-	        requireOwner(organization, user);
+		 
 		 
 		return organizationMapper.toResponseDTO(organization);
 	}

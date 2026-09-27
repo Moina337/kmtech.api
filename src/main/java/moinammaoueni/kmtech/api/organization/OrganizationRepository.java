@@ -16,4 +16,8 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
     boolean existsByNameIgnoreCase(String name);
 
     List<Organization> findAllByStatusOrderByCreatedAtDesc(OrganizationStatus status);
+    
+    List<Organization> findAllByOrderByCreatedAtDesc();
+    
+    
 }

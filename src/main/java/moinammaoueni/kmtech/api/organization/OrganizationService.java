@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import moinammaoueni.kmtech.api.organization.dto.OrganizationPublicResponseDTO;
 import moinammaoueni.kmtech.api.organization.dto.OrganizationRequestDTO;
 import moinammaoueni.kmtech.api.organization.dto.OrganizationResponseDTO;
+import moinammaoueni.kmtech.api.organization.dto.OrganizationSummaryManagement;
 import moinammaoueni.kmtech.api.organizationmember.dto.MyOrganizationResponseDTO;
 
 public interface OrganizationService {
@@ -28,4 +29,10 @@ public interface OrganizationService {
     void deactivateOrganization(Long memberId);
 
     List<MyOrganizationResponseDTO> findMyOrganizations();
+    
+    List<OrganizationSummaryManagement> findOrganizationsForAdmin(OrganizationStatus status);
+    
+    OrganizationResponseDTO validateOrganization(Long organizationId);
+    
+    OrganizationResponseDTO rejectOrganization(Long organizationId, String reason);
 }
