@@ -1,0 +1,33 @@
+[1mdiff --git a/src/main/java/moinammaoueni/kmtech/api/auth/JwtAuthenticationFilter.java b/src/main/java/moinammaoueni/kmtech/api/auth/JwtAuthenticationFilter.java[m
+[1mindex a676dcb..71d2e5e 100644[m
+[1m--- a/src/main/java/moinammaoueni/kmtech/api/auth/JwtAuthenticationFilter.java[m
+[1m+++ b/src/main/java/moinammaoueni/kmtech/api/auth/JwtAuthenticationFilter.java[m
+[36m@@ -48,7 +48,7 @@[m [mpublic class JwtAuthenticationFilter extends OncePerRequestFilter {[m
+                 UserDetails userDetails =[m
+                         userDetailsService.loadUserByUsername(email);[m
+ [m
+[31m-                if (jwtService.isTokenValid(token, email)) {[m
+[32m+[m[32m                if (userDetails.isEnabled() && jwtService.isTokenValid(token, email)) {[m
+ [m
+                     UsernamePasswordAuthenticationToken authentication =[m
+                             new UsernamePasswordAuthenticationToken([m
+[1mdiff --git a/src/main/java/moinammaoueni/kmtech/api/config/SecurityConfig.java b/src/main/java/moinammaoueni/kmtech/api/config/SecurityConfig.java[m
+[1mindex 9e27d3f..269e418 100644[m
+[1m--- a/src/main/java/moinammaoueni/kmtech/api/config/SecurityConfig.java[m
+[1m+++ b/src/main/java/moinammaoueni/kmtech/api/config/SecurityConfig.java[m
+[36m@@ -6,6 +6,7 @@[m [mimport org.springframework.context.annotation.Configuration;[m
+ import org.springframework.security.authentication.AuthenticationManager;[m
+ import org.springframework.security.authentication.dao.DaoAuthenticationProvider;[m
+ import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;[m
+[32m+[m[32mimport org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;[m
+ import org.springframework.security.config.http.SessionCreationPolicy;[m
+ import org.springframework.security.config.annotation.web.builders.HttpSecurity;[m
+ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;[m
+[36m@@ -18,6 +19,7 @@[m [mimport moinammaoueni.kmtech.api.auth.CustomUserDetailsService;[m
+ import moinammaoueni.kmtech.api.auth.JwtAuthenticationFilter;[m
+ [m
+ @Configuration[m
+[32m+[m[32m@EnableMethodSecurity[m
+ @RequiredArgsConstructor[m
+ public class SecurityConfig {[m
+ [m
