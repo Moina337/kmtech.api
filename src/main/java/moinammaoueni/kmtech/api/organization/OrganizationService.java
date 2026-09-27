@@ -15,10 +15,12 @@ public interface OrganizationService {
     
     // Upload a logo for an organization
     OrganizationResponseDTO uploadOrganizationLogo(Long organizationId, MultipartFile file);
+    
+    OrganizationResponseDTO findOrganizationById(Long organizationId);
 
     List<OrganizationResponseDTO> findActiveOrganizations();
     
-
+     
     OrganizationPublicResponseDTO findPublicBySlug(String slug);
 
     OrganizationResponseDTO updateOrganization(Long memberId, OrganizationRequestDTO request);

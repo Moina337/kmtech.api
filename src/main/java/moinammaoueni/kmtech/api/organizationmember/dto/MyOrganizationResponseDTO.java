@@ -18,6 +18,7 @@ import moinammaoueni.kmtech.api.organizationmember.OrganizationMemberRole;
 @Builder
 public class MyOrganizationResponseDTO {
 
+	private Long id;
     private String slug;
     private String name;
     private OrganizationType type;

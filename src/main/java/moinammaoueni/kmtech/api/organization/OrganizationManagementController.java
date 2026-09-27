@@ -71,6 +71,15 @@ public class OrganizationManagementController {
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
+    
+    @Operation(summary = "Récupérer une organisation par son id, en vue gestion")
+    @ApiResponse(responseCode = "200", description = "Organisation trouvée")
+    @ApiResponse(responseCode = "403", description = "Vous n'êtes pas owner de cette organisation")
+    @ApiResponse(responseCode = "404", description = "Organisation introuvable")
+    @GetMapping("/organizations/{organizationId}")
+    public ResponseEntity<OrganizationResponseDTO> findOrganizationById(@PathVariable Long organizationId) {
+        return ResponseEntity.ok(organizationService.findOrganizationById(organizationId));
+    }
 
     @Operation(summary = "Ajouter un membre à l'organisation")
     @ApiResponse(responseCode = "201", description = "Membre ajouté avec succès")

@@ -137,6 +137,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         return organizationMemberRepository.findByUserOrderByJoinedAtAsc(current)
                 .stream()
                 .map(member -> new MyOrganizationResponseDTO(
+                		member.getId(),
                         member.getOrganization().getSlug(),
                         member.getOrganization().getName(),
                         member.getOrganization().getType(),
@@ -191,5 +192,19 @@ public class OrganizationServiceImpl implements OrganizationService {
 		 
 		
 		return organizationMapper.toResponseDTO(organizationRepository.save(organization));
+	}
+
+
+
+	@Override
+	public OrganizationResponseDTO findOrganizationById(Long organizationId) {
+		
+		 Organization organization = organizationRepository.findById(organizationId)
+	                .orElseThrow(() -> new ResourceNotFoundException("Organisation introuvable"));
+		 
+		 User user = currentUser.get();
+	        requireOwner(organization, user);
+		 
+		return organizationMapper.toResponseDTO(organization);
 	}
 }
