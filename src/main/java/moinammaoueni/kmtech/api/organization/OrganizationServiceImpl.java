@@ -3,6 +3,7 @@ package moinammaoueni.kmtech.api.organization;
 import java.text.Normalizer;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 import moinammaoueni.kmtech.api.auth.CurrentUser;
+import moinammaoueni.kmtech.api.auth.EmailSender;
 import moinammaoueni.kmtech.api.common.exception.BadRequestException;
 import moinammaoueni.kmtech.api.common.exception.ResourceNotFoundException;
 import moinammaoueni.kmtech.api.media.Media;
@@ -36,6 +38,10 @@ public class OrganizationServiceImpl implements OrganizationService {
     private final OrganizationMapper organizationMapper;
     private final CurrentUser currentUser;
     private final MediaService mediaService;
+    private final EmailSender emailSender;
+    
+    @Value("${app.admin-notification-email}")
+    private String adminNotificationEmail;
 
     @Override
     public OrganizationResponseDTO createOrganization(OrganizationRequestDTO request) {
@@ -62,6 +68,9 @@ public class OrganizationServiceImpl implements OrganizationService {
                 .build();
 
         organizationMemberRepository.save(ownerMember);
+        
+        emailSender.sendOrganizationPendingReview(creator.getEmail(), creator.getName(), organization.getName());
+        emailSender.sendNewOrganizationPendingAdmin(adminNotificationEmail, organization.getName(), creator.getName());
 
         return organizationMapper.toResponseDTO(organization);
     }
@@ -157,6 +166,12 @@ public class OrganizationServiceImpl implements OrganizationService {
         }
 
         organization.setStatus(OrganizationStatus.ACTIVE);
+        
+        User owner = organizationMemberRepository.findByOrganizationAndRole(organization, OrganizationMemberRole.OWNER)
+                .map(OrganizationMember::getUser)
+                .orElseThrow(() -> new IllegalStateException("Organisation sans owner"));
+
+        emailSender.sendOrganizationValidated(owner.getEmail(), owner.getName(), organization.getName());
         return organizationMapper.toResponseDTO(organizationRepository.save(organization));
     }
 
