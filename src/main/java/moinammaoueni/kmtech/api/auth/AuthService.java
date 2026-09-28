@@ -9,4 +9,7 @@ public interface AuthService {
     AuthenticationResponseDTO register(RegisterRequestDTO request);
 
     AuthenticationResponseDTO login(LoginRequestDTO request);
+    
+    void verifyEmail(String token);
+    void resendVerification(String email);
 }

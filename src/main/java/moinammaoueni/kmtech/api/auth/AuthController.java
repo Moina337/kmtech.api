@@ -16,8 +16,10 @@ import lombok.RequiredArgsConstructor;
 import moinammaoueni.kmtech.api.auth.dto.AuthenticationResponseDTO;
 import moinammaoueni.kmtech.api.auth.dto.LoginRequestDTO;
 import moinammaoueni.kmtech.api.auth.dto.RegisterRequestDTO;
+import moinammaoueni.kmtech.api.auth.dto.ResendVerificationRequest;
+import moinammaoueni.kmtech.api.auth.dto.VerifyEmailRequest;
 
-@Tag(name = "Authentification", description = "Inscription et connexion, sans authentification requise")
+@Tag(name = "Authentification", description = "Inscription, connexion et vérification d'email, sans authentification requise")
 @SecurityRequirement(name = "")
 @RestController
 @RequestMapping("/api/auth")
@@ -26,22 +28,39 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @Operation(summary = "Créer un nouveau compte utilisateur")
-    @ApiResponse(responseCode = "201", description = "Compte créé avec succès, token renvoyé")
+    @Operation(summary = "Créer un compte")
+    @ApiResponse(responseCode = "201", description = "Compte créé, email de vérification envoyé")
     @ApiResponse(responseCode = "400", description = "Données d'inscription invalides")
     @ApiResponse(responseCode = "409", description = "Un compte existe déjà avec cet email")
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponseDTO> register(@Valid @RequestBody RegisterRequestDTO request) {
-        AuthenticationResponseDTO response = authService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request));
     }
 
     @Operation(summary = "Se connecter avec email et mot de passe")
     @ApiResponse(responseCode = "200", description = "Connexion réussie, token renvoyé")
-    @ApiResponse(responseCode = "400", description = "Requête invalide")
     @ApiResponse(responseCode = "401", description = "Email ou mot de passe incorrect")
+    @ApiResponse(responseCode = "403", description = "Email non vérifié")
     @PostMapping("/login")
     public AuthenticationResponseDTO login(@Valid @RequestBody LoginRequestDTO request) {
         return authService.login(request);
+    }
+
+    @Operation(summary = "Confirmer son adresse email avec le token reçu par email")
+    @ApiResponse(responseCode = "204", description = "Email confirmé, le compte est actif")
+    @ApiResponse(responseCode = "400", description = "Lien invalide ou expiré")
+    @PostMapping("/verify-email")
+    public ResponseEntity<Void> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+        authService.verifyEmail(request.token());
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Renvoyer l'email de vérification",
+            description = "Répond toujours 204, que l'adresse existe ou non")
+    @ApiResponse(responseCode = "204", description = "Demande prise en compte")
+    @PostMapping("/resend-verification")
+    public ResponseEntity<Void> resendVerification(@Valid @RequestBody ResendVerificationRequest request) {
+        authService.resendVerification(request.email());
+        return ResponseEntity.noContent().build();
     }
 }
