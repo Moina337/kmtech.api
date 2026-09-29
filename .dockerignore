@@ -1,0 +1,15 @@
+target/
+.git/
+.gitignore
+.env
+.env.*
+!.env.example
+uploads/
+.mvn/
+.settings/
+.project
+.classpath
+*.iml
+.idea/
+*.log
+README.md

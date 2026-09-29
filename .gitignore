@@ -34,3 +34,8 @@ build/
 
 ### upload ###
 /uploads/
+
+### Environment ###
+.env
+.env.*
+!.env.example
